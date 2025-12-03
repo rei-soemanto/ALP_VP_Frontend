@@ -1,0 +1,29 @@
+package com.example.alp_vp_frontend.data.service
+
+import com.example.alp_vp_frontend.data.dto.AddInterestRequest
+import com.example.alp_vp_frontend.data.dto.ApiResponse
+import com.example.alp_vp_frontend.data.dto.InterestResponse
+import com.example.alp_vp_frontend.data.dto.LoginRequest
+import com.example.alp_vp_frontend.data.dto.RegisterRequest
+import com.example.alp_vp_frontend.data.dto.UserResponse
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+
+interface ApiService {
+    @POST("register")
+    suspend fun register(@Body request: RegisterRequest): ApiResponse<UserResponse>
+
+    @POST("login")
+    suspend fun login(@Body request: LoginRequest): ApiResponse<UserResponse>
+
+    @GET("interests")
+    suspend fun getInterests(): ApiResponse<List<InterestResponse>>
+
+    @POST("users/interests")
+    suspend fun addUserInterests(
+        @Header("Authorization") token: String,
+        @Body request: List<AddInterestRequest>
+    ): ApiResponse<String>
+}

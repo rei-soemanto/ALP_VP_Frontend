@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 fun ProfileScreen(onLogout: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         androidx.compose.material3.Button(onClick = onLogout) {
-            Text(text = "Logout (Profile)")
+            Text(text = "Logout (Profile) Tes")
         }
     }
 }

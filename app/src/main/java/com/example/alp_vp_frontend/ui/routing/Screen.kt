@@ -8,25 +8,48 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.alp_vp_frontend.ui.view.InterestScreen
 import com.example.alp_vp_frontend.ui.view.RegisterScreen
-import androidx.compose.material3.Text
+import androidx.compose.ui.platform.LocalContext
+import com.example.alp_vp_frontend.data.local.DataStoreManager
+import com.example.alp_vp_frontend.ui.view.HomeScreen
+import com.example.alp_vp_frontend.ui.view.LoginScreen
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 sealed class Screen(val route: String) {
+    object Login : Screen("login")
     object Register : Screen("register")
+    object Home : Screen("home")
     object Interest : Screen("interest/{token}") {
         fun createRoute(token: String) = "interest/$token"
     }
-    object Login : Screen("login")
-    object Home : Screen("home")
 }
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val dataStore = DataStoreManager(context)
+    val tokenState = runBlocking { dataStore.tokenFlow.first() }
+    val startDestination = if (!tokenState.isNullOrEmpty()) Screen.Home.route else Screen.Login.route
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Register.route
+        startDestination = startDestination
     ) {
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Register.route)
+                },
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Register.route) {
             RegisterScreen(
                 onNavigateToInterest = { token ->
@@ -51,8 +74,14 @@ fun AppNavigation() {
             )
         }
 
-        composable(Screen.Login.route) {
-            Text(text = "Login Screen Placeholder")
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0)
+                    }
+                }
+            )
         }
     }
 }

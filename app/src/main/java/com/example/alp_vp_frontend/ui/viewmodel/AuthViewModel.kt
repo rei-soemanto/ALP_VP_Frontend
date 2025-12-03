@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.alp_vp_frontend.data.dto.AddInterestRequest
 import com.example.alp_vp_frontend.data.dto.InterestResponse
 import com.example.alp_vp_frontend.data.dto.UserResponse
+import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.AuthRepository
 import kotlinx.coroutines.launch
 
@@ -19,7 +20,10 @@ sealed interface AuthUiState {
     data class Error(val message: String) : AuthUiState
 }
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+class AuthViewModel(
+    private val repository: AuthRepository,
+    private val dataStoreManager: DataStoreManager
+) : ViewModel() {
 
     var authState: AuthUiState by mutableStateOf(AuthUiState.Idle)
         private set
@@ -41,6 +45,23 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
+    fun login(email: String, pass: String) {
+        viewModelScope.launch {
+            authState = AuthUiState.Loading
+            try {
+                val user = repository.login(email, pass)
+                if (user.token != null) {
+                    dataStoreManager.saveToken(user.token)
+                    authState = AuthUiState.Success(user = user)
+                } else {
+                    authState = AuthUiState.Error("Login failed: No token received")
+                }
+            } catch (e: Exception) {
+                authState = AuthUiState.Error(e.message ?: "Login Failed")
+            }
+        }
+    }
+
     fun fetchInterests() {
         viewModelScope.launch {
             try {
@@ -49,6 +70,11 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 println("Error fetching interests: ${e.message}")
             }
         }
+    }
+
+    fun toggleInterestSelection(id: Int) {
+        if (selectedInterests.contains(id)) selectedInterests.remove(id)
+        else selectedInterests.add(id)
     }
 
     fun submitSelectedInterests(token: String, onComplete: () -> Unit) {
@@ -67,11 +93,13 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun toggleInterestSelection(id: Int) {
-        if (selectedInterests.contains(id)) {
-            selectedInterests.remove(id)
-        } else {
-            selectedInterests.add(id)
+    fun resetState() {
+        authState = AuthUiState.Idle
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            dataStoreManager.clearToken()
         }
     }
 }

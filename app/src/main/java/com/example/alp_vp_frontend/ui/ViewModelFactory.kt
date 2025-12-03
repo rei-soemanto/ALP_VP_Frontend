@@ -5,13 +5,18 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_vp_frontend.MyApplication
+import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            val application = inventoryApplication()
+            val dataStoreManager = DataStoreManager(application.applicationContext)
+
             AuthViewModel(
-                repository = inventoryApplication().container.authRepository
+                repository = inventoryApplication().container.authRepository,
+                dataStoreManager = dataStoreManager
             )
         }
 

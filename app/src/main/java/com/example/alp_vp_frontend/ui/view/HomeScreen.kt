@@ -12,8 +12,7 @@ import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onLogout: () -> Unit
+    viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -21,14 +20,5 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Welcome Home!", style = MaterialTheme.typography.headlineLarge)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(onClick = {
-            viewModel.logout()
-            onLogout()
-        }) {
-            Text("Logout")
-        }
     }
 }

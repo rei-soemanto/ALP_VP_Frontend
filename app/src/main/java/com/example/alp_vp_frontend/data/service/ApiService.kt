@@ -4,6 +4,7 @@ import com.example.alp_vp_frontend.data.dto.AddInterestRequest
 import com.example.alp_vp_frontend.data.dto.ApiResponse
 import com.example.alp_vp_frontend.data.dto.InterestResponse
 import com.example.alp_vp_frontend.data.dto.LoginRequest
+import com.example.alp_vp_frontend.data.dto.PostResponse
 import com.example.alp_vp_frontend.data.dto.RegisterRequest
 import com.example.alp_vp_frontend.data.dto.UserResponse
 import retrofit2.http.Body
@@ -26,4 +27,10 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: List<AddInterestRequest>
     ): ApiResponse<String>
+
+    @GET("users/current")
+    suspend fun getCurrentUser(@Header("Authorization") token: String): ApiResponse<UserResponse>
+
+    @GET("posts/mine")
+    suspend fun getMyPosts(@Header("Authorization") token: String): ApiResponse<List<PostResponse>>
 }

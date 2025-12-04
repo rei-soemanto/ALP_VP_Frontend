@@ -97,7 +97,7 @@ class AuthViewModel(
         authState = AuthUiState.Idle
     }
 
-    fun logout() {
+    fun logout(onLogout: () -> Unit) {
         viewModelScope.launch {
             dataStoreManager.clearToken()
         }

@@ -26,7 +26,10 @@ data class UserResponse(
     @SerializedName("token") val token: String?,
     @SerializedName("fullName") val fullName: String,
     @SerializedName("email") val email: String,
-    @SerializedName("about") val about: String?
+    @SerializedName("about") val about: String?,
+    @SerializedName("postsCount") val postsCount: Int? = 0,
+    @SerializedName("followersCount") val followersCount: Int? = 0,
+    @SerializedName("followingCount") val followingCount: Int? = 0
 )
 
 data class InterestResponse(

@@ -7,9 +7,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_vp_frontend.MyApplication
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+        // Auth ViewModel
         initializer {
             val application = inventoryApplication()
             val dataStoreManager = DataStoreManager(application.applicationContext)
@@ -20,7 +23,22 @@ object AppViewModelProvider {
             )
         }
 
-        // Add other ViewModels here later...
+        initializer {
+            val app = inventoryApplication()
+            ProfileViewModel(
+                userRepository = app.container.userRepository,
+                postRepository = app.container.postRepository,
+                dataStoreManager = DataStoreManager(app.applicationContext)
+            )
+        }
+
+        initializer {
+            val app = inventoryApplication()
+            PostViewModel(
+                apiService = app.container.postApiService,
+                dataStore = DataStoreManager(app.applicationContext)
+            )
+        }
     }
 }
 

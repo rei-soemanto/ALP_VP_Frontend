@@ -150,7 +150,7 @@ class PostViewModel(
 
     private fun PostResponse.toUiModel(): Post {
         val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
-        val BASE_URL = "http://10.0.2.2:3000"
+        val BASE_URL = "http://10.0.2.2:3000/api/"
 
         val fullUrl = if (firstImage.startsWith("http")) firstImage else "$BASE_URL$firstImage"
 

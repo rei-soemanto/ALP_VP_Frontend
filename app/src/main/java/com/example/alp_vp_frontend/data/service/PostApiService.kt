@@ -6,18 +6,18 @@ import okhttp3.RequestBody
 import retrofit2.http.*
 
 interface PostApiService {
-    @GET("api/posts")
+    @GET("posts")
     suspend fun getAllPosts(
         @Header("Authorization") token: String
     ): List<PostResponse>
 
-    @GET("api/users/current/posts")
+    @GET("users/current/posts")
     suspend fun getUserPosts(
         @Header("Authorization") token: String
     ): List<PostResponse>
 
     @Multipart
-    @POST("api/posts")
+    @POST("posts")
     suspend fun createPost(
         @Header("Authorization") token: String,
         @Part("caption") caption: RequestBody,
@@ -26,7 +26,7 @@ interface PostApiService {
     ): PostResponse
 
     @Multipart
-    @POST("api/posts/{id}")
+    @POST("posts/{id}")
     suspend fun updatePost(
         @Header("Authorization") token: String,
         @Path("id") id: String,
@@ -35,7 +35,7 @@ interface PostApiService {
         @Part image: MultipartBody.Part? = null
     ): PostResponse
 
-    @DELETE("api/posts/{id}")
+    @DELETE("posts/{id}")
     suspend fun deletePost(
         @Header("Authorization") token: String,
         @Path("id") id: String

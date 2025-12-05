@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -36,7 +37,8 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory),
     authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onLogout: () -> Unit,
-    onPostClick: (String, String) -> Unit
+    onPostClick: (String, String) -> Unit,
+    onEditProfileClick: (String, String, String) -> Unit
 ) {
     val state = profileViewModel.profileState
 
@@ -70,7 +72,8 @@ fun ProfileScreen(
                     posts = state.posts,
                     selectedTab = profileViewModel.selectedTabIndex,
                     onTabSelected = { profileViewModel.selectedTabIndex = it },
-                    onPostClick = onPostClick
+                    onPostClick = onPostClick,
+                    onEditProfileClick = onEditProfileClick
                 )
             }
         }
@@ -83,7 +86,8 @@ fun ProfileContent(
     posts: List<PostResponse>,
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
-    onPostClick: (String, String) -> Unit
+    onPostClick: (String, String) -> Unit,
+    onEditProfileClick: (String, String, String) -> Unit
 ) {
     val filteredPosts = if (selectedTab == 0) {
         posts.filter { it.isPublic }
@@ -95,7 +99,24 @@ fun ProfileContent(
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(Color.LightGray))
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(Color.LightGray)
+            ) {
+                if (!user.avatarUrl.isNullOrEmpty()) {
+                    val BASE_URL = "http://10.0.2.2:3000"
+                    val fullUrl = if (user.avatarUrl.startsWith("http")) user.avatarUrl else "$BASE_URL${user.avatarUrl}"
+
+                    AsyncImage(
+                        model = fullUrl,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = user.fullName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -104,6 +125,21 @@ fun ProfileContent(
                     StatItem(user.postsCount ?: 0, "posts")
                     StatItem(user.followersCount ?: 0, "followers")
                     StatItem(user.followingCount ?: 0, "following")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        onEditProfileClick(
+                            user.fullName ?: "",
+                            user.about ?: "",
+                            user.avatarUrl ?: ""
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("Edit Profile", fontSize = 12.sp)
                 }
             }
         }

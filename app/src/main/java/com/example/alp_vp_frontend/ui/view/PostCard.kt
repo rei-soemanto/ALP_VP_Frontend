@@ -54,8 +54,12 @@ fun PostCard(
                     modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.LightGray)
                 ) {
                     if (!post.avatarUrl.isNullOrEmpty()) {
+                        val BASE_URL = "http://10.0.2.2:3000"
+                        val url = post.avatarUrl
+                        val fullUrl = if (url.startsWith("http")) url else "$BASE_URL$url"
+
                         AsyncImage(
-                            model = post.avatarUrl,
+                            model = fullUrl,
                             contentDescription = "Avatar",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop

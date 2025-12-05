@@ -27,6 +27,7 @@ data class UserResponse(
     @SerializedName("fullName") val fullName: String,
     @SerializedName("email") val email: String,
     @SerializedName("about") val about: String?,
+    @SerializedName("avatarUrl") val avatarUrl: String?,
     @SerializedName("postsCount") val postsCount: Int? = 0,
     @SerializedName("followersCount") val followersCount: Int? = 0,
     @SerializedName("followingCount") val followingCount: Int? = 0

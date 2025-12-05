@@ -223,7 +223,7 @@ class PostViewModel(
             comments = this.totalComments.toString(),
             caption = this.caption ?: "",
             imageUrl = fullUrl,
-            avatarUrl = null,
+            avatarUrl = this.author.avatarUrl,
             isPublic = this.isPublic,
             isLiked = this.isLiked
         )

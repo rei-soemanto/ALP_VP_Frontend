@@ -37,7 +37,6 @@ fun CommentSheet(
     val uiState by viewModel.uiState.collectAsState()
     var commentText by remember { mutableStateOf("") }
 
-    // Load comments when sheet opens
     LaunchedEffect(postId) {
         viewModel.fetchComments(postId)
     }
@@ -99,8 +98,20 @@ fun CommentItem(comment: CommentResponse, onReplyClick: (CommentResponse) -> Uni
             .padding(start = if (isReply) 40.dp else 0.dp)
     ) {
         Row(verticalAlignment = Alignment.Top) {
-            // Avatar Placeholder
-            Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.LightGray))
+            Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.LightGray)) {
+                if (!comment.author.avatarUrl.isNullOrEmpty()) {
+                    val BASE_URL = "http://10.0.2.2:3000"
+                    val url = comment.author.avatarUrl
+                    val fullUrl = if (url.startsWith("http")) url else "$BASE_URL$url"
+
+                    AsyncImage(
+                        model = fullUrl,
+                        contentDescription = "Avatar",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -114,7 +125,6 @@ fun CommentItem(comment: CommentResponse, onReplyClick: (CommentResponse) -> Uni
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row {
-                    // Simple logic to show "Reply" button
                     Text(
                         text = "Reply",
                         fontSize = 12.sp,
@@ -126,7 +136,6 @@ fun CommentItem(comment: CommentResponse, onReplyClick: (CommentResponse) -> Uni
             }
         }
 
-        // Render Nested Replies (Recursion logic for UI)
         comment.replies?.forEach { reply ->
             CommentItem(comment = reply, onReplyClick = { onReplyClick(comment) }, isReply = true)
         }
@@ -142,7 +151,6 @@ fun CommentInputBar(
     onSend: () -> Unit
 ) {
     Column(modifier = Modifier.background(Color.White)) {
-        // "Replying to..." indicator
         if (replyingTo != null) {
             Row(
                 modifier = Modifier

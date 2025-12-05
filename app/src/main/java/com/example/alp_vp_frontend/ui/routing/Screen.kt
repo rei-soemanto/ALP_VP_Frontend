@@ -23,6 +23,7 @@ import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.view.BottomNavigationBar
 import com.example.alp_vp_frontend.ui.view.ChatScreen
 import com.example.alp_vp_frontend.ui.view.CreatePostScreen
+import com.example.alp_vp_frontend.ui.view.EditProfileScreen
 import com.example.alp_vp_frontend.ui.view.HomeScreen
 import com.example.alp_vp_frontend.ui.view.InterestScreen
 import com.example.alp_vp_frontend.ui.view.LoginScreen
@@ -45,6 +46,10 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object MyPosts : Screen("my_posts/{postId}/{filterType}") {
         fun createRoute(postId: String, filterType: String) = "my_posts/$postId/$filterType"
+    }
+    object EditProfile : Screen("edit_profile?name={name}&about={about}&avatar={avatar}") {
+        fun createRoute(name: String, about: String, avatar: String) =
+            "edit_profile?name=${Uri.encode(name)}&about=${Uri.encode(about)}&avatar=${Uri.encode(avatar)}"
     }
 }
 
@@ -93,6 +98,32 @@ fun AppNavigation() {
                     onLogout = { navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } } },
                     onPostClick = { postId, filterType ->
                         navController.navigate(Screen.MyPosts.createRoute(postId, filterType))
+                    },
+                    onEditProfileClick = { name, about, avatar ->
+                        navController.navigate(Screen.EditProfile.createRoute(name, about, avatar))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.EditProfile.route,
+                arguments = listOf(
+                    navArgument("name") { defaultValue = "" },
+                    navArgument("about") { defaultValue = "" },
+                    navArgument("avatar") { defaultValue = "" }
+                )
+            ) { backStackEntry ->
+                val name = backStackEntry.arguments?.getString("name") ?: ""
+                val about = backStackEntry.arguments?.getString("about") ?: ""
+                val avatar = backStackEntry.arguments?.getString("avatar") ?: ""
+
+                EditProfileScreen(
+                    currentName = name,
+                    currentAbout = about,
+                    currentAvatarUrl = avatar,
+                    onBackClick = { navController.popBackStack() },
+                    onSaveSuccess = {
+                        navController.popBackStack()
                     }
                 )
             }

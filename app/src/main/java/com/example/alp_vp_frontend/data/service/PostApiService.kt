@@ -1,6 +1,8 @@
 package com.example.alp_vp_frontend.data.service
 
 import com.example.alp_vp_frontend.data.dto.ApiResponse
+import com.example.alp_vp_frontend.data.dto.CommentResponse
+import com.example.alp_vp_frontend.data.dto.CreateCommentRequest
 import com.example.alp_vp_frontend.data.dto.PostResponse
 import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
 import okhttp3.MultipartBody
@@ -39,4 +41,23 @@ interface PostApiService {
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): ApiResponse<String>
+
+    @POST("posts/{id}/like")
+    suspend fun toggleLike(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): ApiResponse<String>
+
+    @GET("posts/{postId}/comments")
+    suspend fun getPostComments(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: Int
+    ): ApiResponse<List<CommentResponse>>
+
+    @POST("posts/{postId}/comments")
+    suspend fun createComment(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: Int,
+        @Body request: CreateCommentRequest
+    ): ApiResponse<CommentResponse>
 }

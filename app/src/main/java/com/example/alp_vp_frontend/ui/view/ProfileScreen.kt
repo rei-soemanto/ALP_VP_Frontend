@@ -36,6 +36,7 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory),
     authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onLogout: () -> Unit,
+    onPostClick: (String, String) -> Unit
 ) {
     val state = profileViewModel.profileState
 
@@ -64,19 +65,33 @@ fun ProfileScreen(
                         Button(onClick = { profileViewModel.fetchProfileData() }) { Text("Retry") }
                     }
                 }
-                is ProfileUiState.Success -> ProfileContent(state.user, state.posts, profileViewModel.selectedTabIndex) { profileViewModel.selectedTabIndex = it }
+                is ProfileUiState.Success -> ProfileContent(
+                    user = state.user,
+                    posts = state.posts,
+                    selectedTab = profileViewModel.selectedTabIndex,
+                    onTabSelected = { profileViewModel.selectedTabIndex = it },
+                    onPostClick = onPostClick
+                )
             }
         }
     }
 }
 
 @Composable
-fun ProfileContent(user: UserResponse, posts: List<PostResponse>, selectedTab: Int, onTabSelected: (Int) -> Unit) {
+fun ProfileContent(
+    user: UserResponse,
+    posts: List<PostResponse>,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    onPostClick: (String, String) -> Unit
+) {
     val filteredPosts = if (selectedTab == 0) {
         posts.filter { it.isPublic }
     } else {
         posts.filter { !it.isPublic }
     }
+
+    val currentFilter = if (selectedTab == 0) "public" else "private"
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -114,7 +129,12 @@ fun ProfileContent(user: UserResponse, posts: List<PostResponse>, selectedTab: I
                 horizontalArrangement = Arrangement.spacedBy(1.dp),
                 verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                items(filteredPosts) { post -> PostGridItem(post) }
+                items(filteredPosts) { post ->
+                    PostGridItem(
+                        post = post,
+                        onClick = { onPostClick(post.id.toString(), currentFilter) }
+                    )
+                }
             }
         }
     }
@@ -129,7 +149,10 @@ fun StatItem(count: Int, label: String) {
 }
 
 @Composable
-fun PostGridItem(post: PostResponse) {
+fun PostGridItem(
+    post: PostResponse,
+    onClick: () -> Unit,
+) {
     val firstImage = post.images?.firstOrNull()?.imageUrl
     val BASE_URL = "http://10.0.2.2:3000"
 
@@ -140,7 +163,10 @@ fun PostGridItem(post: PostResponse) {
     }
 
     Box(
-        modifier = Modifier.aspectRatio(1f).background(Color.LightGray).clickable { }
+        modifier = Modifier
+            .aspectRatio(1f)
+            .background(Color.LightGray)
+            .clickable { onClick() }
     ) {
         if (firstImage != null) {
             AsyncImage(

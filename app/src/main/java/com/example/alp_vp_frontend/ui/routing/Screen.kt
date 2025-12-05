@@ -26,6 +26,7 @@ import com.example.alp_vp_frontend.ui.view.CreatePostScreen
 import com.example.alp_vp_frontend.ui.view.HomeScreen
 import com.example.alp_vp_frontend.ui.view.InterestScreen
 import com.example.alp_vp_frontend.ui.view.LoginScreen
+import com.example.alp_vp_frontend.ui.view.MyPostsScreen
 import com.example.alp_vp_frontend.ui.view.ProfileScreen
 import com.example.alp_vp_frontend.ui.view.RegisterScreen
 import com.example.alp_vp_frontend.ui.view.SearchScreen
@@ -42,6 +43,9 @@ sealed class Screen(val route: String) {
     object CreatePost : Screen("create_post_tab")
     object Chat : Screen("chat")
     object Profile : Screen("profile")
+    object MyPosts : Screen("my_posts/{postId}/{filterType}") {
+        fun createRoute(postId: String, filterType: String) = "my_posts/$postId/$filterType"
+    }
 }
 
 @Composable
@@ -85,7 +89,30 @@ fun AppNavigation() {
             composable(Screen.Chat.route) { ChatScreen() }
 
             composable(Screen.Profile.route) {
-                ProfileScreen(onLogout = { navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } } })
+                ProfileScreen(
+                    onLogout = { navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } } },
+                    onPostClick = { postId, filterType ->
+                        navController.navigate(Screen.MyPosts.createRoute(postId, filterType))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.MyPosts.route,
+                arguments = listOf(
+                    navArgument("postId") { type = NavType.StringType },
+                    navArgument("filterType") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val initialPostId = backStackEntry.arguments?.getString("postId")
+                val filterType = backStackEntry.arguments?.getString("filterType")
+
+                MyPostsScreen(
+                    navController = navController,
+                    viewModel = postViewModel,
+                    initialPostId = initialPostId,
+                    filterType = filterType
+                )
             }
 
             composable(

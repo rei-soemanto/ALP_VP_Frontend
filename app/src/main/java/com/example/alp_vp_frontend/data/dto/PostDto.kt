@@ -24,6 +24,9 @@ data class PostResponse(
     @SerializedName("totalLikes")
     val totalLikes: Int,
 
+    @SerializedName("totalComments")
+    val totalComments: Int,
+
     @SerializedName("isLiked")
     val isLiked: Boolean
 )

@@ -19,6 +19,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 data class Post(
     val id: String,
@@ -29,7 +32,8 @@ data class Post(
     val caption: String,
     val imageUrl: String,
     val avatarUrl: String?,
-    val isPublic: Boolean
+    val isPublic: Boolean,
+    val isLiked: Boolean
 )
 
 class PostViewModel(
@@ -135,6 +139,42 @@ class PostViewModel(
         }
     }
 
+    fun toggleLike(postId: String, isCurrentlyLiked: Boolean) {
+        viewModelScope.launch {
+            try {
+                val token = dataStore.tokenFlow.first() ?: return@launch
+
+                updateLocalLikeState(postId, isCurrentlyLiked)
+
+                apiService.toggleLike("Bearer $token", postId)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateLocalLikeState(postId, !isCurrentlyLiked)
+            }
+        }
+    }
+
+    private fun updateLocalLikeState(postId: String, wasLiked: Boolean) {
+        fun updateList(list: List<Post>): List<Post> {
+            return list.map { post ->
+                if (post.id == postId) {
+                    val currentLikes = post.likes.toIntOrNull() ?: 0
+                    val newLikes = if (wasLiked) currentLikes - 1 else currentLikes + 1
+                    post.copy(
+                        isLiked = !wasLiked,
+                        likes = newLikes.toString()
+                    )
+                } else {
+                    post
+                }
+            }
+        }
+
+        _posts.value = updateList(_posts.value)
+        _userPosts.value = updateList(_userPosts.value)
+    }
+
     private fun prepareImagePart(context: Context, uri: Uri?): MultipartBody.Part? {
         if (uri == null) return null
         return try {
@@ -154,6 +194,20 @@ class PostViewModel(
         }
     }
 
+    private fun formatDate(dateString: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            val date = inputFormat.parse(dateString)
+
+            val outputFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+            outputFormat.format(date!!)
+        } catch (e: Exception) {
+            dateString
+        }
+    }
+
     private fun PostResponse.toUiModel(): Post {
         val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
 
@@ -164,13 +218,14 @@ class PostViewModel(
         return Post(
             id = this.id.toString(),
             username = this.author.fullName,
-            date = this.createdAt,
+            date = formatDate(this.createdAt),
             likes = this.totalLikes.toString(),
-            comments = "0",
+            comments = this.totalComments.toString(),
             caption = this.caption ?: "",
             imageUrl = fullUrl,
             avatarUrl = null,
-            isPublic = this.isPublic
+            isPublic = this.isPublic,
+            isLiked = this.isLiked
         )
     }
 }

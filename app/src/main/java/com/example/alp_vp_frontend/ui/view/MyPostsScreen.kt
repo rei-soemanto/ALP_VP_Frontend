@@ -1,83 +1,88 @@
 package com.example.alp_vp_frontend.ui.view
 
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    viewModel: PostViewModel = viewModel(),
-    navController: NavController
+fun MyPostsScreen(
+    navController: NavController,
+    viewModel: PostViewModel,
+    initialPostId: String?,
+    filterType: String?
 ) {
-    val posts by viewModel.posts.collectAsState()
+    val userPosts by viewModel.userPosts.collectAsState()
+    val displayedPosts = remember(userPosts, filterType) {
+        when (filterType) {
+            "public" -> userPosts.filter { it.isPublic }
+            "private" -> userPosts.filter { !it.isPublic }
+            else -> userPosts
+        }
+    }
+    val screenTitle = if (filterType == "public") "Public Posts" else "Private Posts"
     var showCommentSheet by remember { mutableStateOf(false) }
     var selectedPostId by remember { mutableStateOf<Int?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(initialPostId, userPosts) {
+        if (initialPostId != null && userPosts.isNotEmpty()) {
+            val index = userPosts.indexOfFirst { it.id == initialPostId }
+            if (index >= 0) {
+                listState.scrollToItem(index)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
-            Box(
-                modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp, bottom = 8.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = "Insightgram",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            CenterAlignedTopAppBar(
+                title = { Text(screenTitle, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+            )
         },
         containerColor = Color.White
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
+        if (userPosts.isEmpty()) {
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                Text("No posts found")
+            }
+        } else {
             LazyColumn(
-                contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
+                state = listState,
+                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp)
             ) {
-                items(posts) { post ->
+                items(displayedPosts) { post ->
                     PostCard(
                         post = post,
                         onEditClick = { id, caption, isPublic, imageUrl ->
                             val encodedUrl = Uri.encode(imageUrl)
-                            val encodedCaption = Uri.encode(caption)
                             val route = "create_post_details?uri=$encodedUrl&postId=$id&caption=$caption&isPublic=$isPublic"
-
                             navController.navigate(route)
                         },
-                        onDeleteClick = { postId ->
-                            viewModel.deletePost(postId)
-                        },
+                        onDeleteClick = { viewModel.deletePost(it) },
                         onCommentClick = {
                             selectedPostId = post.id.toInt()
                             showCommentSheet = true
@@ -87,6 +92,7 @@ fun HomeScreen(
                         }
                     )
                 }
+
             }
 
             if (showCommentSheet && selectedPostId != null) {

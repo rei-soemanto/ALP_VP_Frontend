@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_vp_frontend.MyApplication
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.CommentViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 
@@ -37,6 +38,14 @@ object AppViewModelProvider {
             PostViewModel(
                 apiService = app.container.postApiService,
                 dataStore = DataStoreManager(app.applicationContext)
+            )
+        }
+
+        initializer {
+            val app = inventoryApplication()
+            CommentViewModel(
+                postRepository = app.container.postRepository,
+                dataStoreManager = DataStoreManager(app.applicationContext)
             )
         }
     }

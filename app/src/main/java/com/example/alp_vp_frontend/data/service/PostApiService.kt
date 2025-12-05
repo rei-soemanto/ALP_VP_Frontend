@@ -1,6 +1,8 @@
 package com.example.alp_vp_frontend.data.service
 
+import com.example.alp_vp_frontend.data.dto.ApiResponse
 import com.example.alp_vp_frontend.data.dto.PostResponse
+import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
@@ -9,35 +11,32 @@ interface PostApiService {
     @GET("posts")
     suspend fun getAllPosts(
         @Header("Authorization") token: String
-    ): List<PostResponse>
+    ): ApiResponse<List<PostResponse>>
 
-    @GET("users/current/posts")
+    @GET("posts/mine")
     suspend fun getUserPosts(
         @Header("Authorization") token: String
-    ): List<PostResponse>
+    ): ApiResponse<List<PostResponse>>
 
     @Multipart
     @POST("posts")
     suspend fun createPost(
         @Header("Authorization") token: String,
         @Part("caption") caption: RequestBody,
-        @Part("is_public") isPublic: RequestBody,
-        @Part image: MultipartBody.Part
-    ): PostResponse
+        @Part("isPublic") isPublic: RequestBody,
+        @Part images: MultipartBody.Part
+    ): ApiResponse<PostResponse>
 
-    @Multipart
-    @POST("posts/{id}")
+    @PUT("posts/{id}")
     suspend fun updatePost(
         @Header("Authorization") token: String,
         @Path("id") id: String,
-        @Part("caption") caption: RequestBody,
-        @Part("is_public") isPublic: RequestBody,
-        @Part image: MultipartBody.Part? = null
-    ): PostResponse
+        @Body request: UpdatePostRequest
+    ): ApiResponse<PostResponse>
 
     @DELETE("posts/{id}")
     suspend fun deletePost(
         @Header("Authorization") token: String,
         @Path("id") id: String
-    )
+    ): ApiResponse<String>
 }

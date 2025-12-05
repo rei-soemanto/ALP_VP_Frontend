@@ -28,7 +28,7 @@ import com.example.alp_vp_frontend.ui.viewmodel.Post
 @Composable
 fun PostCard(
     post: Post,
-    onEditClick: (String) -> Unit,
+    onEditClick: (String, String, Boolean, String) -> Unit,
     onDeleteClick: (String) -> Unit,
     onPostClick: (String) -> Unit
 ) {
@@ -75,7 +75,7 @@ fun PostCard(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Edit Post") },
-                            onClick = { showMenu = false; onEditClick(post.id) }
+                            onClick = { showMenu = false; onEditClick(post.id, post.caption, post.isPublic, post.imageUrl) }
                         )
                         DropdownMenuItem(
                             text = { Text("Delete Post", color = Color.Red) },
@@ -85,7 +85,6 @@ fun PostCard(
                 }
             }
 
-            // FIXED: Using imageUrl
             Box(
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f).background(Color(0xFFE0E0E0))
             ) {

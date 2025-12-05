@@ -4,7 +4,7 @@ import com.example.alp_vp_frontend.data.repository.AuthRepository
 import com.example.alp_vp_frontend.data.repository.PostRepository
 import com.example.alp_vp_frontend.data.repository.UserRepository
 import com.example.alp_vp_frontend.data.service.ApiService
-import com.example.alp_vp_frontend.data.service.PostApiService // Import this
+import com.example.alp_vp_frontend.data.service.PostApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,7 +31,15 @@ class DefaultAppContainer : AppContainer {
         retrofit.create(PostApiService::class.java)
     }
 
-    override val authRepository: AuthRepository by lazy { AuthRepository(retrofitService) }
-    override val userRepository: UserRepository by lazy { UserRepository(retrofitService) }
-    override val postRepository: PostRepository by lazy { PostRepository(retrofitService) }
+    override val authRepository: AuthRepository by lazy {
+        AuthRepository(retrofitService)
+    }
+
+    override val userRepository: UserRepository by lazy {
+        UserRepository(retrofitService)
+    }
+
+    override val postRepository: PostRepository by lazy {
+        PostRepository(postApiService)
+    }
 }

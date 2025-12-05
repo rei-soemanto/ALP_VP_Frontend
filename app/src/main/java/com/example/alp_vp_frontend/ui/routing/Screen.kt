@@ -72,7 +72,7 @@ fun AppNavigation() {
             composable(Screen.Interest.route, arguments = listOf(navArgument("token") { type = NavType.StringType })) { backStackEntry ->
                 InterestScreen(token = backStackEntry.arguments?.getString("token") ?: "", onNavigateHome = { navController.navigate(Screen.Login.route) })
             }
-            composable(Screen.Home.route) { HomeScreen(viewModel = postViewModel) }
+            composable(Screen.Home.route) { HomeScreen(viewModel = postViewModel, navController = navController) }
             composable(Screen.Search.route) { SearchScreen() }
             composable(Screen.CreatePost.route) {
                 val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->

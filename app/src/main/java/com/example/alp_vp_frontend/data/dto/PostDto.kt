@@ -9,29 +9,42 @@ data class PostResponse(
     @SerializedName("caption")
     val caption: String?,
 
-    @SerializedName("username")
-    val username: String?,
+    @SerializedName("isPublic")
+    val isPublic: Boolean,
 
-    @SerializedName("user_avatar")
-    val userAvatar: String?,
+    @SerializedName("createdAt")
+    val createdAt: String,
 
-    @SerializedName("created_at")
-    val createdAt: String?,
-
-    @SerializedName("likes")
-    val likes: Int?,
-
-    @SerializedName("comments")
-    val comments: Int?,
-
-    @SerializedName("is_public")
-    val isPublic: Boolean?,
+    @SerializedName("author")
+    val author: AuthorResponse,
 
     @SerializedName("images")
-    val images: List<PostImageResponse>?
+    val images: List<PostImageResponse>?,
+
+    @SerializedName("totalLikes")
+    val totalLikes: Int,
+
+    @SerializedName("isLiked")
+    val isLiked: Boolean
+)
+
+data class AuthorResponse(
+    @SerializedName("id")
+    val id: Int,
+
+    @SerializedName("fullName")
+    val fullName: String
 )
 
 data class PostImageResponse(
-    @SerializedName("image_url")
+    @SerializedName("imageUrl")
     val imageUrl: String
+)
+
+data class UpdatePostRequest(
+    @SerializedName("caption")
+    val caption: String,
+
+    @SerializedName("isPublic")
+    val isPublic: Boolean
 )

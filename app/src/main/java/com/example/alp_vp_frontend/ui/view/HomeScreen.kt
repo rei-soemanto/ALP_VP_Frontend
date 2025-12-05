@@ -1,5 +1,6 @@
 package com.example.alp_vp_frontend.ui.view
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController // ✅ Import this
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: PostViewModel = viewModel()
+    viewModel: PostViewModel = viewModel(),
+    navController: NavController
 ) {
     val posts by viewModel.posts.collectAsState()
 
@@ -54,8 +57,16 @@ fun HomeScreen(
                 items(posts) { post ->
                     PostCard(
                         post = post,
-                        onEditClick = { /* Handle Edit */ },
-                        onDeleteClick = { viewModel.deletePost(post.id) },
+                        onEditClick = { id, caption, isPublic, imageUrl ->
+                            val encodedUrl = Uri.encode(imageUrl)
+                            val encodedCaption = Uri.encode(caption)
+                            val route = "create_post_details?uri=$encodedUrl&postId=$id&caption=$caption&isPublic=$isPublic"
+
+                            navController.navigate(route)
+                        },
+                        onDeleteClick = { postId ->
+                            viewModel.deletePost(postId)
+                        },
                         onPostClick = { /* Handle Detail View */ }
                     )
                 }

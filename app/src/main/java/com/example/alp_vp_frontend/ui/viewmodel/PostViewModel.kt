@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.alp_vp_frontend.data.dto.PostResponse
+import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.service.PostApiService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,8 @@ data class Post(
     val comments: String,
     val caption: String,
     val imageUrl: String,
-    val avatarUrl: String?
+    val avatarUrl: String?,
+    val isPublic: Boolean
 )
 
 class PostViewModel(
@@ -53,7 +55,7 @@ class PostViewModel(
                 if (token.isNullOrEmpty()) return@launch
 
                 val response = apiService.getAllPosts("Bearer $token")
-                _posts.value = response.map { it.toUiModel() }
+                _posts.value = response.data.map { it.toUiModel() }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -67,7 +69,7 @@ class PostViewModel(
                 if (token.isNullOrEmpty()) return@launch
 
                 val response = apiService.getUserPosts("Bearer $token")
-                _userPosts.value = response.map { it.toUiModel() }
+                _userPosts.value = response.data.map { it.toUiModel() }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -102,10 +104,13 @@ class PostViewModel(
                 val token = dataStore.tokenFlow.first()
                 if (token.isNullOrEmpty()) return@launch
 
-                val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-                val publicPart = isPublic.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                val request = UpdatePostRequest(
+                    caption = caption,
+                    isPublic = isPublic
+                )
 
-                apiService.updatePost("Bearer $token", postId, captionPart, publicPart)
+                apiService.updatePost("Bearer $token", postId, request)
+
                 fetchPosts()
                 fetchUserPosts()
             } catch (e: Exception) {
@@ -141,7 +146,8 @@ class PostViewModel(
             outputStream.close()
 
             val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("image", file.name, requestBody)
+
+            MultipartBody.Part.createFormData("images", file.name, requestBody)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -150,19 +156,21 @@ class PostViewModel(
 
     private fun PostResponse.toUiModel(): Post {
         val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
-        val BASE_URL = "http://10.0.2.2:3000/api/"
+
+        val BASE_URL = "http://10.0.2.2:3000"
 
         val fullUrl = if (firstImage.startsWith("http")) firstImage else "$BASE_URL$firstImage"
 
         return Post(
             id = this.id.toString(),
-            username = this.username ?: "Unknown",
-            date = this.createdAt ?: "Recently",
-            likes = (this.likes ?: 0).toString(),
-            comments = (this.comments ?: 0).toString(),
+            username = this.author.fullName,
+            date = this.createdAt,
+            likes = this.totalLikes.toString(),
+            comments = "0",
             caption = this.caption ?: "",
             imageUrl = fullUrl,
-            avatarUrl = this.userAvatar
+            avatarUrl = null,
+            isPublic = this.isPublic
         )
     }
 }

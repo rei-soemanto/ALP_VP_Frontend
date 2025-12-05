@@ -35,8 +35,8 @@ fun CreatePostScreen(
     onBackClick: () -> Unit,
     onShareClick: (String, Boolean) -> Unit
 ) {
-    var caption by remember { mutableStateOf(initialCaption) }
-    var isPublic by remember { mutableStateOf(initialIsPublic) }
+    var caption by remember(initialCaption) { mutableStateOf(initialCaption) }
+    var isPublic by remember(initialIsPublic) { mutableStateOf(initialIsPublic) }
 
     val isEditMode = postId != null
 

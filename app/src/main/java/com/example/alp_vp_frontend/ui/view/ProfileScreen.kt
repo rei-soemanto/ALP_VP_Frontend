@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,10 +39,14 @@ fun ProfileScreen(
 ) {
     val state = profileViewModel.profileState
 
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchProfileData()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                title = { Text("Profile", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { authViewModel.logout(onLogout) }) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
@@ -67,6 +72,12 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileContent(user: UserResponse, posts: List<PostResponse>, selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    val filteredPosts = if (selectedTab == 0) {
+        posts.filter { it.isPublic }
+    } else {
+        posts.filter { !it.isPublic }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(Color.LightGray))
@@ -91,14 +102,20 @@ fun ProfileContent(user: UserResponse, posts: List<PostResponse>, selectedTab: I
             Tab(selected = selectedTab == 1, onClick = { onTabSelected(1) }, text = { Text("Private Post") })
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(1.dp),
-            horizontalArrangement = Arrangement.spacedBy(1.dp),
-            verticalArrangement = Arrangement.spacedBy(1.dp)
-        ) {
-            items(posts) { post -> PostGridItem(post) }
+        if (filteredPosts.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
+                Text("No posts yet", color = Color.Gray)
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(1.dp),
+                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                items(filteredPosts) { post -> PostGridItem(post) }
+            }
         }
     }
 }

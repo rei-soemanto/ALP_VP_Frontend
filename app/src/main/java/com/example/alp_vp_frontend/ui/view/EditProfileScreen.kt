@@ -108,7 +108,7 @@ fun EditProfileScreen(
                     )
                 }
             }
-            Text("Change Photo", color = Color(0xFF6C5CE7), modifier = Modifier.padding(top = 8.dp).clickable {
+            Text("Change Photo", color = Color(0xFF6759FF), modifier = Modifier.padding(top = 8.dp).clickable {
                 launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             })
 

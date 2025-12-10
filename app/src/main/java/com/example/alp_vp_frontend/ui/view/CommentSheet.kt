@@ -118,9 +118,11 @@ fun CommentItem(comment: CommentResponse, onReplyClick: (CommentResponse) -> Uni
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(comment.author.fullName, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(comment.content, fontSize = 13.sp)
                 }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(comment.content, fontSize = 13.sp)
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -197,7 +199,7 @@ fun CommentInputBar(
             )
 
             IconButton(onClick = onSend, enabled = text.isNotBlank()) {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color(0xFF6C5CE7))
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color(0xFF6759FF))
             }
         }
     }

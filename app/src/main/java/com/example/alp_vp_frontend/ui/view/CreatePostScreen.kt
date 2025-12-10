@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
-val Blurple = Color(0xFF6C5CE7)
+val Blurple = Color(0xFF6759FF)
 val LightGrey = Color(0xFFE0E0E0)
 val InputGrey = Color(0xFFEEEEEE)
 

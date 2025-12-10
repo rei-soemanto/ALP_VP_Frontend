@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
@@ -37,6 +39,7 @@ fun InterestScreen(
     val interests = viewModel.interestList
     val selectedInterests = viewModel.selectedInterests
     val uiState = viewModel.authState
+    val mainColor = Color(0xFF6759FF)
 
     LaunchedEffect(Unit) {
         viewModel.fetchInterests()
@@ -89,7 +92,10 @@ fun InterestScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = selectedInterests.isNotEmpty() && uiState !is AuthUiState.Loading
+            enabled = selectedInterests.isNotEmpty() && uiState !is AuthUiState.Loading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = mainColor
+            )
         ) {
             if (uiState is AuthUiState.Loading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp))

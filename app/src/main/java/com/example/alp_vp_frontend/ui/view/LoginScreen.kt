@@ -8,10 +8,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.alp_vp_frontend.R
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.viewmodel.AuthUiState
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
@@ -26,6 +31,10 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val authState = viewModel.authState
+    val mainColor = Color(0xFF6759FF)
+    val pattayaFontFamily = FontFamily(
+        Font(R.font.pattaya_regular)
+    )
 
     LaunchedEffect(authState) {
         if (authState is AuthUiState.Success) {
@@ -41,7 +50,12 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Welcome Back", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "Insightgram",
+            fontSize = 40.sp,
+            fontFamily = pattayaFontFamily,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
@@ -49,7 +63,12 @@ fun LoginScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = mainColor,
+                focusedLabelColor = mainColor,
+                cursorColor = mainColor
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -59,14 +78,22 @@ fun LoginScreen(
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = mainColor,
+                focusedLabelColor = mainColor,
+                cursorColor = mainColor
+            )
         )
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = { viewModel.login(email, password) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthUiState.Loading
+            enabled = authState !is AuthUiState.Loading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = mainColor
+            )
         ) {
             if (authState is AuthUiState.Loading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -81,7 +108,7 @@ fun LoginScreen(
             Text(text = "Doesn't have account? ")
             Text(
                 text = "Sign Up here",
-                color = MaterialTheme.colorScheme.primary,
+                color = mainColor,
                 modifier = Modifier.clickable {
                     viewModel.resetState()
                     onNavigateToRegister()

@@ -3,14 +3,17 @@ package com.example.alp_vp_frontend.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -52,7 +55,7 @@ fun ProfileScreen(
                 title = { Text("Profile", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { authViewModel.logout(onLogout) }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Menu")
                     }
                 }
             )
@@ -98,10 +101,10 @@ fun ProfileContent(
     val currentFilter = if (selectedTab == 0) "public" else "private"
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(100.dp)
                     .clip(CircleShape)
                     .background(Color.LightGray)
             ) {
@@ -117,7 +120,7 @@ fun ProfileContent(
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = user.fullName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -144,13 +147,33 @@ fun ProfileContent(
             }
         }
         if (!user.about.isNullOrEmpty()) {
-            Text(text = user.about, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), fontSize = 14.sp)
+            Text(text = user.about, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp), fontSize = 14.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        TabRow(selectedTabIndex = selectedTab) {
-            Tab(selected = selectedTab == 0, onClick = { onTabSelected(0) }, text = { Text("Public Post") })
-            Tab(selected = selectedTab == 1, onClick = { onTabSelected(1) }, text = { Text("Private Post") })
+        TabRow(
+            selectedTabIndex = selectedTab,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                    color = Color.Black
+                )
+            }
+        ) {
+            Tab(
+                selected = selectedTab == 0,
+                onClick = { onTabSelected(0) },
+                text = { Text("Public Post") },
+                selectedContentColor = Color.Black,
+                unselectedContentColor = Color.Gray
+            )
+            Tab(
+                selected = selectedTab == 1,
+                onClick = { onTabSelected(1) },
+                text = { Text("Private Post") },
+                selectedContentColor = Color.Black,
+                unselectedContentColor = Color.Gray
+            )
         }
 
         if (filteredPosts.isEmpty()) {

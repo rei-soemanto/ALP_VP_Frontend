@@ -42,8 +42,7 @@ fun PostCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
             Row(

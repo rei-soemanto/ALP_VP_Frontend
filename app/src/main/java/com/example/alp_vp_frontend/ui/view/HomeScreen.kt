@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,11 +23,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.alp_vp_frontend.R
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,18 +43,23 @@ fun HomeScreen(
     var showCommentSheet by remember { mutableStateOf(false) }
     var selectedPostId by remember { mutableStateOf<Int?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val pattayaFontFamily = FontFamily(
+        Font(R.font.pattaya_regular)
+    )
 
     Scaffold(
         topBar = {
             Box(
                 modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp, bottom = 8.dp),
-                contentAlignment = Alignment.CenterStart
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Insightgram",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 32.sp,
+                    fontFamily = pattayaFontFamily,
+                    fontWeight = FontWeight.Bold,
                 )
             }
         },
@@ -60,7 +69,6 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
         ) {
             LazyColumn(
                 contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)

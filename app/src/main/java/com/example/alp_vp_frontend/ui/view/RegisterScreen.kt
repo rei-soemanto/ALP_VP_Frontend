@@ -7,10 +7,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.alp_vp_frontend.R
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.viewmodel.AuthUiState
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
@@ -24,6 +29,10 @@ fun RegisterScreen(
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val mainColor = Color(0xFF6759FF)
+    val pattayaFontFamily = FontFamily(
+        Font(R.font.pattaya_regular)
+    )
 
     val authState = viewModel.authState
 
@@ -42,7 +51,12 @@ fun RegisterScreen(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Create Account", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "Insightgram",
+            fontSize = 40.sp,
+            fontFamily = pattayaFontFamily,
+            fontWeight = FontWeight.Bold
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -50,7 +64,12 @@ fun RegisterScreen(
             value = fullName,
             onValueChange = { fullName = it },
             label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = mainColor,
+                focusedLabelColor = mainColor,
+                cursorColor = mainColor
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -60,7 +79,12 @@ fun RegisterScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = mainColor,
+                focusedLabelColor = mainColor,
+                cursorColor = mainColor
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -71,7 +95,12 @@ fun RegisterScreen(
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = mainColor,
+                focusedLabelColor = mainColor,
+                cursorColor = mainColor
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -79,7 +108,10 @@ fun RegisterScreen(
         Button(
             onClick = { viewModel.register(fullName, email, password) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthUiState.Loading
+            enabled = authState !is AuthUiState.Loading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = mainColor
+            )
         ) {
             if (authState is AuthUiState.Loading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))

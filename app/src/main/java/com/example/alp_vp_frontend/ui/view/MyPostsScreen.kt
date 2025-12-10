@@ -70,7 +70,7 @@ fun MyPostsScreen(
             LazyColumn(
                 state = listState,
                 contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
-                modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp)
+                modifier = Modifier.padding(innerPadding)
             ) {
                 items(displayedPosts) { post ->
                     PostCard(

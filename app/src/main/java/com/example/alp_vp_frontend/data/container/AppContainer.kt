@@ -16,7 +16,7 @@ interface AppContainer {
 }
 
 class DefaultAppContainer : AppContainer {
-    private val BASE_URL = "http://10.0.2.2:3000/api/"
+        private val BASE_URL = "http://10.0.2.2:3000/api/"
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())

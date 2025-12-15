@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -130,24 +131,24 @@ fun ProfileContent(
                     StatItem(user.followingCount ?: 0, "following")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = {
-                        onEditProfileClick(
-                            user.fullName ?: "",
-                            user.about ?: "",
-                            user.avatarUrl ?: ""
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth().height(36.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text("Edit Profile", fontSize = 12.sp)
+                if (!user.about.isNullOrEmpty()) {
+                    Text(text = user.about, modifier = Modifier.padding(vertical = 8.dp), fontSize = 14.sp)
                 }
             }
         }
-        if (!user.about.isNullOrEmpty()) {
-            Text(text = user.about, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp), fontSize = 14.sp)
+        OutlinedButton(
+            onClick = {
+                onEditProfileClick(
+                    user.fullName ?: "",
+                    user.about ?: "",
+                    user.avatarUrl ?: ""
+                )
+            },
+            modifier = Modifier.fillMaxWidth().height(36.dp).padding(horizontal = 20.dp),
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text("Edit Profile", fontSize = 12.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
 

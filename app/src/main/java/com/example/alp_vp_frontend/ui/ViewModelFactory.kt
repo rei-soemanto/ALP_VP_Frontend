@@ -15,13 +15,12 @@ import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        // Auth ViewModel
         initializer {
-            val application = inventoryApplication()
-            val dataStoreManager = DataStoreManager(application.applicationContext)
+            val app = inventoryApplication()
+            val dataStoreManager = DataStoreManager(app.applicationContext)
 
             AuthViewModel(
-                repository = inventoryApplication().container.authRepository,
+                repository = app.container.authRepository,
                 dataStoreManager = dataStoreManager
             )
         }

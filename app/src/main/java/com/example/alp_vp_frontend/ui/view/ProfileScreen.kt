@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
@@ -20,15 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.alp_vp_frontend.data.dto.PostResponse
-import com.example.alp_vp_frontend.data.dto.UserResponse
+import com.example.alp_vp_frontend.data.kt.PostResponse
+import com.example.alp_vp_frontend.data.kt.UserResponse
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel

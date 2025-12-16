@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alp_vp_frontend.data.dto.CommentResponse
+import com.example.alp_vp_frontend.data.kt.CommentResponse
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.PostRepository
 import kotlinx.coroutines.flow.MutableStateFlow

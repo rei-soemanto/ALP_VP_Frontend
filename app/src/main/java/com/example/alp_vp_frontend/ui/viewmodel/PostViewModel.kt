@@ -4,10 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alp_vp_frontend.data.dto.PostResponse
-import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
+import com.example.alp_vp_frontend.data.kt.PostResponse
+import com.example.alp_vp_frontend.data.kt.UpdatePostRequest
 import com.example.alp_vp_frontend.data.local.DataStoreManager
-import com.example.alp_vp_frontend.data.repository.PostRepository
 import com.example.alp_vp_frontend.data.service.PostApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

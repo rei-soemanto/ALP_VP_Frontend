@@ -1,12 +1,12 @@
 package com.example.alp_vp_frontend.data.service
 
-import com.example.alp_vp_frontend.data.dto.AddInterestRequest
-import com.example.alp_vp_frontend.data.dto.ApiResponse
-import com.example.alp_vp_frontend.data.dto.InterestResponse
-import com.example.alp_vp_frontend.data.dto.LoginRequest
-import com.example.alp_vp_frontend.data.dto.PostResponse
-import com.example.alp_vp_frontend.data.dto.RegisterRequest
-import com.example.alp_vp_frontend.data.dto.UserResponse
+import com.example.alp_vp_frontend.data.kt.AddInterestRequest
+import com.example.alp_vp_frontend.data.kt.ApiResponse
+import com.example.alp_vp_frontend.data.kt.InterestResponse
+import com.example.alp_vp_frontend.data.kt.LoginRequest
+import com.example.alp_vp_frontend.data.kt.PostResponse
+import com.example.alp_vp_frontend.data.kt.RegisterRequest
+import com.example.alp_vp_frontend.data.kt.UserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body

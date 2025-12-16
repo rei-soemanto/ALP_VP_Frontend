@@ -39,6 +39,7 @@ data class Post(
 
 class PostViewModel(
     private val apiService: PostApiService,
+    private val repository: PostRepository,
     private val dataStore: DataStoreManager
 ) : ViewModel() {
 
@@ -93,7 +94,7 @@ class PostViewModel(
                 val imagePart = prepareImagePart(context, imageUri)
 
                 if (imagePart != null) {
-                    apiService.createPost("Bearer $token", captionPart, publicPart, imagePart)
+                    repository.createPost("Bearer $token", captionPart, publicPart, imagePart)
                     fetchPosts()
                     fetchUserPosts()
                 }

@@ -38,6 +38,7 @@ object AppViewModelProvider {
             val app = inventoryApplication()
             PostViewModel(
                 apiService = app.container.postApiService,
+                repository = app.container.postRepository,
                 dataStore = DataStoreManager(app.applicationContext)
             )
         }

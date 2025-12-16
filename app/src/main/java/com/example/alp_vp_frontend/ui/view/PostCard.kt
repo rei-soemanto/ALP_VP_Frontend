@@ -26,6 +26,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import com.example.alp_vp_frontend.ui.viewmodel.Post
 
 @Composable
@@ -53,7 +54,7 @@ fun PostCard(
                     modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.LightGray)
                 ) {
                     if (!post.avatarUrl.isNullOrEmpty()) {
-                        val BASE_URL = "http://10.0.2.2:3000"
+                        val BASE_URL = ImageBaseURL
                         val url = post.avatarUrl
                         val fullUrl = if (url.startsWith("http")) url else "$BASE_URL$url"
 

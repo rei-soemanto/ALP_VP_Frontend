@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
+import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import com.example.alp_vp_frontend.ui.viewmodel.EditProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,7 +98,7 @@ fun EditProfileScreen(
                         contentScale = ContentScale.Crop
                     )
                 } else if (!currentAvatarUrl.isNullOrEmpty()) {
-                    val BASE_URL = "http://10.0.2.2:3000"
+                    val BASE_URL = ImageBaseURL
                     val fullUrl = if(currentAvatarUrl.startsWith("http")) currentAvatarUrl else "$BASE_URL$currentAvatarUrl"
 
                     AsyncImage(

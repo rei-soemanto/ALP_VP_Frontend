@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.alp_vp_frontend.data.dto.CommentResponse
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
+import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import com.example.alp_vp_frontend.ui.viewmodel.CommentUiState
 import com.example.alp_vp_frontend.ui.viewmodel.CommentViewModel
 
@@ -100,7 +101,7 @@ fun CommentItem(comment: CommentResponse, onReplyClick: (CommentResponse) -> Uni
         Row(verticalAlignment = Alignment.Top) {
             Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.LightGray)) {
                 if (!comment.author.avatarUrl.isNullOrEmpty()) {
-                    val BASE_URL = "http://10.0.2.2:3000"
+                    val BASE_URL = ImageBaseURL
                     val url = comment.author.avatarUrl
                     val fullUrl = if (url.startsWith("http")) url else "$BASE_URL$url"
 

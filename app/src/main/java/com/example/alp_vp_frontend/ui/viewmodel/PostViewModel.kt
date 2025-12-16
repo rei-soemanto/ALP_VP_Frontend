@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.alp_vp_frontend.data.dto.PostResponse
 import com.example.alp_vp_frontend.data.repository.PostRepository
+import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -199,7 +200,7 @@ class PostViewModel(
 
     private fun PostResponse.toUiModel(): Post {
         val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
-        val BASE_URL = "http://10.0.2.2:3000"
+        val BASE_URL = ImageBaseURL
         val fullUrl = if (firstImage.startsWith("http")) firstImage else "$BASE_URL$firstImage"
 
         return Post(

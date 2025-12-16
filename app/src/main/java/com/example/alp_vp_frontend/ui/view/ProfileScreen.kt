@@ -28,6 +28,7 @@ import coil.compose.AsyncImage
 import com.example.alp_vp_frontend.data.dto.PostResponse
 import com.example.alp_vp_frontend.data.dto.UserResponse
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
+import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ProfileUiState
@@ -108,7 +109,7 @@ fun ProfileContent(
                     .background(Color.LightGray)
             ) {
                 if (!user.avatarUrl.isNullOrEmpty()) {
-                    val BASE_URL = "http://10.0.2.2:3000"
+                    val BASE_URL = ImageBaseURL
                     val fullUrl = if (user.avatarUrl.startsWith("http")) user.avatarUrl else "$BASE_URL${user.avatarUrl}"
 
                     AsyncImage(
@@ -212,7 +213,7 @@ fun PostGridItem(
     onClick: () -> Unit,
 ) {
     val firstImage = post.images?.firstOrNull()?.imageUrl
-    val BASE_URL = "http://10.0.2.2:3000"
+    val BASE_URL = ImageBaseURL
 
     val fullImageUrl = if (firstImage?.startsWith("http") == true) {
         firstImage

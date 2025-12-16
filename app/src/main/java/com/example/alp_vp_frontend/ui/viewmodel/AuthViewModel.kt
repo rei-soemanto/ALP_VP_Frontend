@@ -37,10 +37,8 @@ class AuthViewModel(
             try {
                 val user = repository.register(fullName, email, pass)
                 authState = AuthUiState.Success(user)
-
                 fetchInterests()
             } catch (e: Exception) {
-                println(e)
                 authState = AuthUiState.Error(e.message ?: "Registration Failed")
             }
         }

@@ -5,12 +5,21 @@ import com.example.alp_vp_frontend.data.kt.InterestResponse
 import com.example.alp_vp_frontend.data.kt.LoginRequest
 import com.example.alp_vp_frontend.data.kt.RegisterRequest
 import com.example.alp_vp_frontend.data.kt.UserResponse
+import com.example.alp_vp_frontend.data.mapper.ResponseErrorMapper
 import com.example.alp_vp_frontend.data.service.ApiService
+import com.example.alp_vp_frontend.ui.viewmodel.AuthUiState
+import retrofit2.HttpException
 
 class AuthRepository(private val apiService: ApiService) {
     suspend fun register(fullName: String, email: String, pass: String): UserResponse {
-        val request = RegisterRequest(fullName, email, pass)
-        return apiService.register(request).data
+        try {
+            val request = RegisterRequest(fullName, email, pass)
+            val response = apiService.register(request)
+
+            return response.data
+        } catch (e: HttpException) {
+            throw Exception(ResponseErrorMapper.fromHttpException(e))
+        }
     }
 
     suspend fun login(email: String, pass: String): UserResponse {

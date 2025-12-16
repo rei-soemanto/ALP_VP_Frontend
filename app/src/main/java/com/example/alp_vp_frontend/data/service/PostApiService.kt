@@ -1,10 +1,10 @@
 package com.example.alp_vp_frontend.data.service
 
-import com.example.alp_vp_frontend.data.kt.ApiResponse
-import com.example.alp_vp_frontend.data.kt.CommentResponse
-import com.example.alp_vp_frontend.data.kt.CreateCommentRequest
-import com.example.alp_vp_frontend.data.kt.PostResponse
-import com.example.alp_vp_frontend.data.kt.UpdatePostRequest
+import com.example.alp_vp_frontend.data.dto.ApiResponse
+import com.example.alp_vp_frontend.data.dto.CommentResponse
+import com.example.alp_vp_frontend.data.dto.CreateCommentRequest
+import com.example.alp_vp_frontend.data.dto.PostResponse
+import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*

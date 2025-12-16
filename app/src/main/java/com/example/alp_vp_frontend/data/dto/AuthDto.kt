@@ -1,4 +1,4 @@
-package com.example.alp_vp_frontend.data.kt
+package com.example.alp_vp_frontend.data.dto
 
 import com.google.gson.annotations.SerializedName
 

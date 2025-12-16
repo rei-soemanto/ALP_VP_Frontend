@@ -1,13 +1,12 @@
 package com.example.alp_vp_frontend.data.repository
 
-import com.example.alp_vp_frontend.data.kt.AddInterestRequest
-import com.example.alp_vp_frontend.data.kt.InterestResponse
-import com.example.alp_vp_frontend.data.kt.LoginRequest
-import com.example.alp_vp_frontend.data.kt.RegisterRequest
-import com.example.alp_vp_frontend.data.kt.UserResponse
+import com.example.alp_vp_frontend.data.dto.AddInterestRequest
+import com.example.alp_vp_frontend.data.dto.InterestResponse
+import com.example.alp_vp_frontend.data.dto.LoginRequest
+import com.example.alp_vp_frontend.data.dto.RegisterRequest
+import com.example.alp_vp_frontend.data.dto.UserResponse
 import com.example.alp_vp_frontend.data.mapper.ResponseErrorMapper
 import com.example.alp_vp_frontend.data.service.ApiService
-import com.example.alp_vp_frontend.ui.viewmodel.AuthUiState
 import retrofit2.HttpException
 
 class AuthRepository(private val apiService: ApiService) {

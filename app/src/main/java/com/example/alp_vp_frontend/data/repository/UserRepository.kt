@@ -1,6 +1,6 @@
 package com.example.alp_vp_frontend.data.repository
 
-import com.example.alp_vp_frontend.data.kt.UserResponse
+import com.example.alp_vp_frontend.data.dto.UserResponse
 import com.example.alp_vp_frontend.data.service.ApiService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

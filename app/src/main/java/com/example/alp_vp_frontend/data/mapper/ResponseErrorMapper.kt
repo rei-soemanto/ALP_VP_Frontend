@@ -1,6 +1,6 @@
 package com.example.alp_vp_frontend.data.mapper
 
-import com.example.alp_vp_frontend.data.kt.ResponseError
+import com.example.alp_vp_frontend.data.dto.ResponseError
 import com.google.gson.Gson
 import retrofit2.HttpException
 

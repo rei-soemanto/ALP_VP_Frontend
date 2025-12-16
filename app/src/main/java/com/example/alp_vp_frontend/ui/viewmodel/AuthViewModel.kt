@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alp_vp_frontend.data.kt.AddInterestRequest
-import com.example.alp_vp_frontend.data.kt.InterestResponse
-import com.example.alp_vp_frontend.data.kt.UserResponse
+import com.example.alp_vp_frontend.data.dto.AddInterestRequest
+import com.example.alp_vp_frontend.data.dto.InterestResponse
+import com.example.alp_vp_frontend.data.dto.UserResponse
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.AuthRepository
 import kotlinx.coroutines.launch

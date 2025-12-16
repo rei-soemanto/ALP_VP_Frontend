@@ -7,11 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.alp_vp_frontend.data.dto.PostResponse
 import com.example.alp_vp_frontend.data.dto.UserResponse
-import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.PostRepository
 import com.example.alp_vp_frontend.data.repository.UserRepository
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 sealed interface ProfileUiState {
@@ -22,8 +20,7 @@ sealed interface ProfileUiState {
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    private val postRepository: PostRepository,
-    private val dataStoreManager: DataStoreManager
+    private val postRepository: PostRepository
 ) : ViewModel() {
 
     var profileState: ProfileUiState by mutableStateOf(ProfileUiState.Loading)
@@ -31,31 +28,21 @@ class ProfileViewModel(
 
     var selectedTabIndex by mutableStateOf(0)
 
-    init { fetchProfileData() }
+    init {
+        fetchProfileData()
+    }
 
     fun fetchProfileData() {
         viewModelScope.launch {
             profileState = ProfileUiState.Loading
             try {
-                val token = dataStoreManager.tokenFlow.first()
-                if (token.isNullOrEmpty()) {
-                    profileState = ProfileUiState.Error("Not logged in")
-                    return@launch
-                }
-                val userDeferred = async { userRepository.getCurrentUser(token) }
-                val postsDeferred = async { postRepository.getMyPosts(token) }
+                val userDeferred = async { userRepository.getCurrentUser() }
+                val postsDeferred = async { postRepository.getUserPosts() }
 
                 profileState = ProfileUiState.Success(userDeferred.await(), postsDeferred.await())
             } catch (e: Exception) {
                 profileState = ProfileUiState.Error(e.message ?: "Failed to load profile")
             }
-        }
-    }
-
-    fun logout(onLogoutComplete: () -> Unit) {
-        viewModelScope.launch {
-            dataStoreManager.clearToken()
-            onLogoutComplete()
         }
     }
 }

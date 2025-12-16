@@ -5,14 +5,10 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.alp_vp_frontend.data.dto.PostResponse
-import com.example.alp_vp_frontend.data.dto.UpdatePostRequest
-import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.PostRepository
-import com.example.alp_vp_frontend.data.service.PostApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -23,6 +19,13 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+
+sealed class PostUiState {
+    object Idle : PostUiState()
+    object Loading : PostUiState()
+    data class Success(val message: String? = null) : PostUiState()
+    data class Error(val message: String) : PostUiState()
+}
 
 data class Post(
     val id: String,
@@ -38,10 +41,11 @@ data class Post(
 )
 
 class PostViewModel(
-    private val apiService: PostApiService,
-    private val repository: PostRepository,
-    private val dataStore: DataStoreManager
+    private val repository: PostRepository
 ) : ViewModel() {
+
+    private val _postUiState = MutableStateFlow<PostUiState>(PostUiState.Idle)
+    val postUiState: StateFlow<PostUiState> = _postUiState.asStateFlow()
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts.asStateFlow()
@@ -56,14 +60,13 @@ class PostViewModel(
 
     fun fetchPosts() {
         viewModelScope.launch {
+            _postUiState.value = PostUiState.Loading
             try {
-                val token = dataStore.tokenFlow.first()
-                if (token.isNullOrEmpty()) return@launch
-
-                val response = apiService.getAllPosts("Bearer $token")
-                _posts.value = response.data.map { it.toUiModel() }
+                val result = repository.getAllPosts()
+                _posts.value = result.map { it.toUiModel() }
+                _postUiState.value = PostUiState.Success()
             } catch (e: Exception) {
-                e.printStackTrace()
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to fetch posts")
             }
         }
     }
@@ -71,72 +74,64 @@ class PostViewModel(
     fun fetchUserPosts() {
         viewModelScope.launch {
             try {
-                val token = dataStore.tokenFlow.first()
-                if (token.isNullOrEmpty()) return@launch
-
-                val response = apiService.getUserPosts("Bearer $token")
-                _userPosts.value = response.data.map { it.toUiModel() }
+                val result = repository.getUserPosts()
+                _userPosts.value = result.map { it.toUiModel() }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to fetch user posts")
             }
         }
     }
 
     fun createPost(context: Context, caption: String, imageUri: Uri?, isPublic: Boolean) {
         viewModelScope.launch {
+            _postUiState.value = PostUiState.Loading
             try {
-                val token = dataStore.tokenFlow.first()
-                if (token.isNullOrEmpty()) return@launch
-
                 val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
                 val publicPart = isPublic.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
                 val imagePart = prepareImagePart(context, imageUri)
 
                 if (imagePart != null) {
-                    repository.createPost("Bearer $token", captionPart, publicPart, imagePart)
+                    repository.createPost(captionPart, publicPart, imagePart)
+                    _postUiState.value = PostUiState.Success("Post created successfully")
+
                     fetchPosts()
                     fetchUserPosts()
+                } else {
+                    _postUiState.value = PostUiState.Error("Image is required")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to create post")
             }
         }
     }
 
     fun updatePost(postId: String, caption: String, isPublic: Boolean) {
         viewModelScope.launch {
+            _postUiState.value = PostUiState.Loading
             try {
-                val token = dataStore.tokenFlow.first()
-                if (token.isNullOrEmpty()) return@launch
-
-                val request = UpdatePostRequest(
-                    caption = caption,
-                    isPublic = isPublic
-                )
-
-                apiService.updatePost("Bearer $token", postId, request)
+                repository.updatePost(postId, caption, isPublic)
+                _postUiState.value = PostUiState.Success("Post updated")
 
                 fetchPosts()
                 fetchUserPosts()
             } catch (e: Exception) {
-                e.printStackTrace()
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to update post")
             }
         }
     }
 
     fun deletePost(postId: String) {
         viewModelScope.launch {
+            _postUiState.value = PostUiState.Loading
             try {
-                val token = dataStore.tokenFlow.first()
-                if (token.isNullOrEmpty()) return@launch
-
-                apiService.deletePost("Bearer $token", postId)
+                repository.deletePost(postId)
 
                 _posts.value = _posts.value.filter { it.id != postId }
                 _userPosts.value = _userPosts.value.filter { it.id != postId }
+
+                _postUiState.value = PostUiState.Success("Post deleted")
             } catch (e: Exception) {
-                e.printStackTrace()
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to delete post")
             }
         }
     }
@@ -144,15 +139,11 @@ class PostViewModel(
     fun toggleLike(postId: String, isCurrentlyLiked: Boolean) {
         viewModelScope.launch {
             try {
-                val token = dataStore.tokenFlow.first() ?: return@launch
-
                 updateLocalLikeState(postId, isCurrentlyLiked)
-
-                apiService.toggleLike("Bearer $token", postId)
-
+                repository.toggleLike(postId)
             } catch (e: Exception) {
-                e.printStackTrace()
                 updateLocalLikeState(postId, !isCurrentlyLiked)
+                _postUiState.value = PostUiState.Error(e.message ?: "Failed to like post")
             }
         }
     }
@@ -172,7 +163,6 @@ class PostViewModel(
                 }
             }
         }
-
         _posts.value = updateList(_posts.value)
         _userPosts.value = updateList(_userPosts.value)
     }
@@ -188,7 +178,6 @@ class PostViewModel(
             outputStream.close()
 
             val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-
             MultipartBody.Part.createFormData("images", file.name, requestBody)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -200,9 +189,7 @@ class PostViewModel(
         return try {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
             inputFormat.timeZone = TimeZone.getTimeZone("UTC")
-
             val date = inputFormat.parse(dateString)
-
             val outputFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
             outputFormat.format(date!!)
         } catch (e: Exception) {
@@ -212,9 +199,7 @@ class PostViewModel(
 
     private fun PostResponse.toUiModel(): Post {
         val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
-
         val BASE_URL = "http://10.0.2.2:3000"
-
         val fullUrl = if (firstImage.startsWith("http")) firstImage else "$BASE_URL$firstImage"
 
         return Post(

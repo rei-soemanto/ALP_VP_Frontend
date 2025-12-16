@@ -4,9 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.UserRepository
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -22,9 +23,11 @@ sealed interface EditProfileUiState {
 }
 
 class EditProfileViewModel(
-    private val userRepository: UserRepository,
-    private val dataStoreManager: DataStoreManager
+    private val userRepository: UserRepository
 ) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<EditProfileUiState>(EditProfileUiState.Idle)
+    val uiState: StateFlow<EditProfileUiState> = _uiState.asStateFlow()
 
     private fun prepareImagePart(context: Context, uri: Uri?): MultipartBody.Part? {
         if (uri == null) return null
@@ -52,16 +55,16 @@ class EditProfileViewModel(
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
+            _uiState.value = EditProfileUiState.Loading
             try {
-                val token = dataStoreManager.tokenFlow.first() ?: return@launch
-
                 val imagePart = prepareImagePart(context, imageUri)
 
-                userRepository.updateUser(token, fullName, about, imagePart)
+                userRepository.updateUser(fullName, about, imagePart)
 
+                _uiState.value = EditProfileUiState.Success
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
+                _uiState.value = EditProfileUiState.Error(e.message ?: "Update failed")
             }
         }
     }

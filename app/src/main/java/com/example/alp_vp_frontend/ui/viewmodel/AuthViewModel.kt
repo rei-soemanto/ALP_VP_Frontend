@@ -1,5 +1,6 @@
 package com.example.alp_vp_frontend.ui.viewmodel
 
+import android.util.Log.e
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,8 +22,7 @@ sealed interface AuthUiState {
 }
 
 class AuthViewModel(
-    private val repository: AuthRepository,
-    private val dataStoreManager: DataStoreManager
+    private val repository: AuthRepository
 ) : ViewModel() {
 
     var authState: AuthUiState by mutableStateOf(AuthUiState.Idle)
@@ -49,12 +49,7 @@ class AuthViewModel(
             authState = AuthUiState.Loading
             try {
                 val user = repository.login(email, pass)
-                if (user.token != null) {
-                    dataStoreManager.saveToken(user.token)
-                    authState = AuthUiState.Success(user = user)
-                } else {
-                    authState = AuthUiState.Error("Login failed: No token received")
-                }
+                authState = AuthUiState.Success(user = user)
             } catch (e: Exception) {
                 authState = AuthUiState.Error(e.message ?: "Login Failed")
             }
@@ -98,7 +93,7 @@ class AuthViewModel(
 
     fun logout(onLogout: () -> Unit) {
         viewModelScope.launch {
-            dataStoreManager.clearToken()
+            repository.logout()
         }
     }
 }

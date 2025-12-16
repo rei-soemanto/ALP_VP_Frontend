@@ -17,11 +17,9 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             val app = inventoryApplication()
-            val dataStoreManager = DataStoreManager(app.applicationContext)
 
             AuthViewModel(
-                repository = app.container.authRepository,
-                dataStoreManager = dataStoreManager
+                repository = app.container.authRepository
             )
         }
 
@@ -29,33 +27,28 @@ object AppViewModelProvider {
             val app = inventoryApplication()
             ProfileViewModel(
                 userRepository = app.container.userRepository,
-                postRepository = app.container.postRepository,
-                dataStoreManager = DataStoreManager(app.applicationContext)
+                postRepository = app.container.postRepository
             )
         }
 
         initializer {
             val app = inventoryApplication()
             PostViewModel(
-                apiService = app.container.postApiService,
-                repository = app.container.postRepository,
-                dataStore = DataStoreManager(app.applicationContext)
+                repository = app.container.postRepository
             )
         }
 
         initializer {
             val app = inventoryApplication()
             CommentViewModel(
-                postRepository = app.container.postRepository,
-                dataStoreManager = DataStoreManager(app.applicationContext)
+                postRepository = app.container.postRepository
             )
         }
 
         initializer {
             val app = inventoryApplication()
             EditProfileViewModel(
-                userRepository = app.container.userRepository,
-                dataStoreManager = DataStoreManager(app.applicationContext)
+                userRepository = app.container.userRepository
             )
         }
     }

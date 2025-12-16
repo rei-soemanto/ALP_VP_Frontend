@@ -1,5 +1,8 @@
 package com.example.alp_vp_frontend.data.container
 
+import android.content.Context
+import com.example.alp_vp_frontend.MyApplication
+import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.data.repository.AuthRepository
 import com.example.alp_vp_frontend.data.repository.PostRepository
 import com.example.alp_vp_frontend.data.repository.UserRepository
@@ -8,8 +11,10 @@ import com.example.alp_vp_frontend.data.service.PostApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class AppContainer {
-    private val BASE_URL = "http://192.168.1.56:3000/api/"
+class AppContainer(appContext: Context) {
+    private val BASE_URL = "http://10.0.2.2:3000/api/"
+
+    private val dataStoreManager = DataStoreManager(appContext)
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
@@ -25,14 +30,14 @@ class AppContainer {
     }
 
     val authRepository: AuthRepository by lazy {
-        AuthRepository(retrofitService)
+        AuthRepository(retrofitService, dataStoreManager)
     }
 
     val userRepository: UserRepository by lazy {
-        UserRepository(retrofitService)
+        UserRepository(retrofitService, dataStoreManager)
     }
 
     val postRepository: PostRepository by lazy {
-        PostRepository(postApiService)
+        PostRepository(postApiService, dataStoreManager)
     }
 }

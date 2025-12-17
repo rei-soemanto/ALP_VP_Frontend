@@ -6,17 +6,12 @@ import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
@@ -38,7 +33,7 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem(Screen.Home.route, Icons.Default.Home, "Home"),
         BottomNavItem(Screen.Search.route, Icons.Default.Search, "Search"),
         BottomNavItem(Screen.CreatePost.route, Icons.Default.Add, "Post"),
-        BottomNavItem(Screen.Chat.route, Icons.Default.ChatBubbleOutline, "Chat"),
+        BottomNavItem(Screen.ChatList.route, Icons.Default.ChatBubbleOutline, "Chat"),
         BottomNavItem(Screen.Profile.route, Icons.Default.Person, "Profile")
     )
 

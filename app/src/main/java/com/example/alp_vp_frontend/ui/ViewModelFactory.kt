@@ -1,13 +1,12 @@
 package com.example.alp_vp_frontend.ui
 
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_vp_frontend.MyApplication
-import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.CommentViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.EditProfileViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
@@ -49,6 +48,13 @@ object AppViewModelProvider {
             val app = inventoryApplication()
             EditProfileViewModel(
                 userRepository = app.container.userRepository
+            )
+        }
+
+        initializer {
+            val app = inventoryApplication()
+            ChatListViewModel(
+                chatRepository = app.container.chatRepository
             )
         }
     }

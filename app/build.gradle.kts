@@ -80,4 +80,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("io.socket:socket.io-client:2.1.0")
+    implementation("com.github.SmartToolFactory:Compose-Bubble:Tag")
 }

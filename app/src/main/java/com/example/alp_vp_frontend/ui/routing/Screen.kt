@@ -18,10 +18,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.alp_vp_frontend.data.dto.ChatProfile
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.view.BottomNavigationBar
-import com.example.alp_vp_frontend.ui.view.ChatScreen
+import com.example.alp_vp_frontend.ui.view.ChatListScreen
+import com.example.alp_vp_frontend.ui.view.ChatViewScreen
 import com.example.alp_vp_frontend.ui.view.CreatePostScreen
 import com.example.alp_vp_frontend.ui.view.EditProfileScreen
 import com.example.alp_vp_frontend.ui.view.HomeScreen
@@ -42,7 +44,10 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
     object CreatePost : Screen("create_post_tab")
-    object Chat : Screen("chat")
+    object ChatList : Screen("chat_list")
+    object ChatView : Screen("chat_view/?fullName={fullName}&id={id}&avatar={avatarUrl}") {
+        fun createRoute(profile: ChatProfile) = "chat_view?fullName=${Uri.encode(profile.fullName)}&id=${profile.id}&avatar=${Uri.encode(profile.avatarUrl as String)}"
+    }
     object Profile : Screen("profile")
     object MyPosts : Screen("my_posts/{postId}/{filterType}") {
         fun createRoute(postId: String, filterType: String) = "my_posts/$postId/$filterType"
@@ -60,7 +65,7 @@ fun AppNavigation() {
     val dataStore = DataStoreManager(context)
     val tokenState = runBlocking { dataStore.tokenFlow.first() }
     val startDestination = if (!tokenState.isNullOrEmpty()) Screen.Home.route else Screen.Login.route
-    val mainTabs = listOf(Screen.Home.route, Screen.Search.route, Screen.CreatePost.route, Screen.Chat.route, Screen.Profile.route)
+    val mainTabs = listOf(Screen.Home.route, Screen.Search.route, Screen.CreatePost.route, Screen.ChatList.route, Screen.Profile.route)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val postViewModel: PostViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -91,7 +96,35 @@ fun AppNavigation() {
                 }
                 LaunchedEffect(Unit) { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
             }
-            composable(Screen.Chat.route) { ChatScreen() }
+            composable(Screen.ChatList.route) {
+                ChatListScreen(
+                    onChatNavigation = { profile ->
+                        navController.navigate(Screen.ChatView.createRoute(profile))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChatView.route,
+                arguments = listOf(
+                    navArgument("fullName") { defaultValue = "" },
+                    navArgument("id") { defaultValue = "" },
+                    navArgument("avatarUrl") { defaultValue = "" }
+                )
+            ) { backStackEntry ->
+                val fullName = backStackEntry.arguments?.getString("fullName") ?: ""
+                val id = Integer.valueOf(backStackEntry.arguments?.getString("id") ?: "")
+                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
+
+                ChatViewScreen(
+                    profileId = id,
+                    profileFullName = fullName,
+                    profileAvatarUrl = avatarUrl,
+                    onBackClick = {
+                        navController.navigate(Screen.ChatList.route)
+                    }
+                )
+            }
 
             composable(Screen.Profile.route) {
                 ProfileScreen(

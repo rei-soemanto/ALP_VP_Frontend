@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_vp_frontend.MyApplication
 import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.CommentViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.EditProfileViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
@@ -54,6 +55,13 @@ object AppViewModelProvider {
         initializer {
             val app = inventoryApplication()
             ChatListViewModel(
+                chatRepository = app.container.chatRepository
+            )
+        }
+
+        initializer {
+            val app = inventoryApplication()
+            ChatViewModel(
                 chatRepository = app.container.chatRepository
             )
         }

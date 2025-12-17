@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,6 +44,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
 import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
+import com.smarttoolfactory.bubble.ArrowAlignment
+import com.smarttoolfactory.bubble.BubbleCornerRadius
+import com.smarttoolfactory.bubble.BubbleState
+import com.smarttoolfactory.bubble.bubble
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +58,7 @@ fun ChatViewScreen(
     onBackClick: () -> Unit,
     viewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val messages = viewModel.messages.collectAsState()
+    val messages by viewModel.messages.collectAsState()
     var message by remember { mutableStateOf("")}
 
     LaunchedEffect(Unit) {
@@ -106,7 +112,38 @@ fun ChatViewScreen(
             LazyColumn(
                 modifier = Modifier.weight(1f)
             ) {
+                items(messages) { msg ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = if (msg.senderId == counterPartId) {
+                            Arrangement.Start
+                        } else {
+                            Arrangement.End
+                        }
+                    ) {
+//                        Spacer(modifier = Modifier.fillMaxWidth(0.2f))
 
+                        Column(
+                            modifier = Modifier
+                                .bubble(
+                                    bubbleState = BubbleState(
+                                        cornerRadius = BubbleCornerRadius(5.dp),
+                                        alignment = if (msg.senderId == counterPartId) {
+                                            ArrowAlignment.LeftTop
+                                        } else {
+                                            ArrowAlignment.RightTop
+                                        }
+                                    )
+                                )
+                        ) {
+                            Text(
+                                text = msg.content,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
             }
 
             Row(
@@ -117,8 +154,9 @@ fun ChatViewScreen(
             ) {
                 OutlinedTextField(
                     value = message,
-                    placeholder = "Message",
+                    placeholder = { Text(text = "Message") },
                     onValueChange = { message = it },
+                    label = {},
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     minLines = 1,

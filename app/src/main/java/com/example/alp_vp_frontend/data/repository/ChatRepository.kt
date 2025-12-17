@@ -3,6 +3,7 @@ package com.example.alp_vp_frontend.data.repository;
 import android.util.Log.e
 import com.example.alp_vp_frontend.data.dto.ChatListItem
 import com.example.alp_vp_frontend.data.dto.ChatMessage
+import com.example.alp_vp_frontend.data.dto.ListMessageRequest
 import com.example.alp_vp_frontend.data.local.DataStoreManager;
 import com.example.alp_vp_frontend.data.mapper.ResponseErrorMapper
 import com.example.alp_vp_frontend.data.service.ChatApiService;
@@ -27,9 +28,11 @@ class ChatRepository(
         }
     }
 
-    suspend fun getMessages(counterPartId: Int): List<ChatMessage> {
+    suspend fun getMessages(counterPartId: Int, chunkIndex: Int): List<ChatMessage> {
         try {
-            val response = chatApiService.getMessages(getAuthHeader(), counterPartId).data
+            val request = ListMessageRequest(chunkIndex)
+            val response = chatApiService.getMessages(getAuthHeader(), counterPartId, request).data
+
             return response
         } catch (e: HttpException) {
             throw Exception(ResponseErrorMapper.fromHttpException(e))

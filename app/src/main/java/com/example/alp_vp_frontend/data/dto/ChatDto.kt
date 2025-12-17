@@ -24,3 +24,7 @@ data class ChatMessage(
     val senderId: Int,
     val timestamp: String
 )
+
+data class ListMessageRequest (
+    val chunkIndex: Int
+)

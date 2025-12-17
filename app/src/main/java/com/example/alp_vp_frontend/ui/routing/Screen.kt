@@ -45,8 +45,17 @@ sealed class Screen(val route: String) {
     object Search : Screen("search")
     object CreatePost : Screen("create_post_tab")
     object ChatList : Screen("chat_list")
-    object ChatView : Screen("chat_view/?fullName={fullName}&id={id}&avatar={avatarUrl}") {
-        fun createRoute(profile: ChatProfile) = "chat_view?fullName=${Uri.encode(profile.fullName)}&id=${profile.id}&avatar=${Uri.encode(profile.avatarUrl as String)}"
+    object ChatView : Screen("chat_view/{fullName}/{id}/{avatarUrl}") {
+        fun createRoute(profile: ChatProfile): String {
+            val avatarUrl = (profile.avatarUrl as? String)
+                ?.takeIf { it.isNotBlank() }
+                ?: "none"
+
+            return "chat_view/" +
+                    Uri.encode(profile.fullName) + "/" +
+                    profile.id + "/" +
+                    Uri.encode(avatarUrl)
+        }
     }
     object Profile : Screen("profile")
     object MyPosts : Screen("my_posts/{postId}/{filterType}") {
@@ -96,10 +105,43 @@ fun AppNavigation() {
                 }
                 LaunchedEffect(Unit) { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
             }
+
+//            composable(Screen.ChatList.route) {
+//                ChatListScreen(
+//                    onChatNavigation = { profile ->
+//                        navController.navigate(Screen.ChatView.createRoute(profile))
+//                    }
+//                )
+//            }
+//
+//            composable(
+//                route = Screen.ChatView.route,
+//                arguments = listOf(
+//                    navArgument("fullName") { defaultValue = "" },
+//                    navArgument("id") { defaultValue = "" },
+//                    navArgument("avatarUrl") { defaultValue = "" }
+//                )
+//            ) { backStackEntry ->
+//                val fullName = backStackEntry.arguments?.getString("fullName") ?: ""
+//                val id = Integer.valueOf(backStackEntry.arguments?.getString("id") ?: "")
+//                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
+//
+//                ChatViewScreen(
+//                    profileId = id,
+//                    profileFullName = fullName,
+//                    profileAvatarUrl = avatarUrl,
+//                    onBackClick = {
+//                        navController.navigate(Screen.ChatList.route)
+//                    }
+//                )
+//            }
+
             composable(Screen.ChatList.route) {
                 ChatListScreen(
                     onChatNavigation = { profile ->
-                        navController.navigate(Screen.ChatView.createRoute(profile))
+                        navController.navigate(
+                            Screen.ChatView.createRoute(profile)
+                        )
                     }
                 )
             }
@@ -107,21 +149,22 @@ fun AppNavigation() {
             composable(
                 route = Screen.ChatView.route,
                 arguments = listOf(
-                    navArgument("fullName") { defaultValue = "" },
-                    navArgument("id") { defaultValue = "" },
-                    navArgument("avatarUrl") { defaultValue = "" }
+                    navArgument("fullName") { type = NavType.StringType },
+                    navArgument("id") { type = NavType.IntType },
+                    navArgument("avatarUrl") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val fullName = backStackEntry.arguments?.getString("fullName") ?: ""
-                val id = Integer.valueOf(backStackEntry.arguments?.getString("id") ?: "")
-                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
+
+                val fullName = backStackEntry.arguments?.getString("fullName")!!
+                val id = backStackEntry.arguments?.getInt("id")!!
+                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl")!!
 
                 ChatViewScreen(
-                    profileId = id,
+                    counterPartId = id,
                     profileFullName = fullName,
                     profileAvatarUrl = avatarUrl,
                     onBackClick = {
-                        navController.navigate(Screen.ChatList.route)
+                        navController.popBackStack()
                     }
                 )
             }

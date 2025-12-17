@@ -127,7 +127,7 @@ fun ChatListItemComponent(chat: ChatListItem, onClick: (profile: ChatProfile) ->
             )
 
             Text(
-                text = chat.read.toString(), //chat.content.trim(),
+                text = chat.content.trim(),
                 fontSize = 12.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

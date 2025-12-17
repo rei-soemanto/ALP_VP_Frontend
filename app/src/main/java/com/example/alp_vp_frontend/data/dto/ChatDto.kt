@@ -15,3 +15,12 @@ data class ChatProfile(
     val fullName: String,
     val id: Int
 )
+
+data class ChatMessage(
+    val content: String,
+    val id: Int,
+    val images: List<String>,
+    val receiverId: Int,
+    val senderId: Int,
+    val timestamp: String
+)

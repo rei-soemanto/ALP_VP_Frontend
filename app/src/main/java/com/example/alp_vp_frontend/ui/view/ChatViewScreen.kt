@@ -2,22 +2,23 @@ package com.example.alp_vp_frontend.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AttachFile
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,39 +36,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.theme.ImageBaseURL
+import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatViewScreen(
-    profileId: Int,
+    counterPartId: Int,
     profileFullName: String,
     profileAvatarUrl: String?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val messages = viewModel.messages.collectAsState()
     var message by remember { mutableStateOf("")}
+
+    LaunchedEffect(Unit) {
+        viewModel.getMessages(counterPartId)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row (
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AsyncImage(
-                            model = ImageBaseURL + profileAvatarUrl,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(1f)
+                                .clip(CircleShape)
+                                .background(Color.LightGray)
+                        ) {
+                            AsyncImage(
+                                model = ImageBaseURL + profileAvatarUrl,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(18.dp))
 
                         Text(
                             text = profileFullName,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp
+                            fontSize = 18.sp
                         )
                     }
                 },
@@ -84,22 +103,31 @@ fun ChatViewScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+
+            }
+
             Row(
                 modifier = Modifier
                     .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = message,
+                    placeholder = "Message",
                     onValueChange = { message = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    minLines = 3,
-                    maxLines = 5
+                    minLines = 1,
+                    maxLines = 4
                 )
 
                 IconButton(
+                    modifier = Modifier
+                        .size(52.dp),
                     onClick = {}
                 ) {
                     Icon(Icons.Default.AttachFile, contentDescription = null)
@@ -108,11 +136,11 @@ fun ChatViewScreen(
                 IconButton(
                     onClick = { /* handle click */ },
                     modifier = Modifier
-                        .size(48.dp) // total size of the circle
+                        .size(52.dp) // total size of the circle
                         .background(color = Color(0xFF6759FF), shape = CircleShape)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = null,
                         tint = Color.White // icon color
                     )

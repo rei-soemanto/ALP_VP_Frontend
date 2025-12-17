@@ -1,6 +1,8 @@
 package com.example.alp_vp_frontend.data.repository;
 
+import android.util.Log.e
 import com.example.alp_vp_frontend.data.dto.ChatListItem
+import com.example.alp_vp_frontend.data.dto.ChatMessage
 import com.example.alp_vp_frontend.data.local.DataStoreManager;
 import com.example.alp_vp_frontend.data.mapper.ResponseErrorMapper
 import com.example.alp_vp_frontend.data.service.ChatApiService;
@@ -19,6 +21,15 @@ class ChatRepository(
     suspend fun getChatList(): List<ChatListItem> {
         try {
             val response = chatApiService.getChatList(getAuthHeader()).data
+            return response
+        } catch (e: HttpException) {
+            throw Exception(ResponseErrorMapper.fromHttpException(e))
+        }
+    }
+
+    suspend fun getMessages(counterPartId: Int): List<ChatMessage> {
+        try {
+            val response = chatApiService.getMessages(getAuthHeader(), counterPartId).data
             return response
         } catch (e: HttpException) {
             throw Exception(ResponseErrorMapper.fromHttpException(e))

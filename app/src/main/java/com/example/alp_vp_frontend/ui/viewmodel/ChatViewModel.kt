@@ -16,13 +16,10 @@ class ChatViewModel(
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
-    private val _chunkIndex = MutableStateFlow<Int>(1)
-    val chunkIndex: StateFlow<Int> = _chunkIndex.asStateFlow()
-
     fun getMessages(counterPartId: Int) {
         viewModelScope.launch {
             try {
-                _messages.value = chatRepository.getMessages(counterPartId, chunkIndex.value)
+                _messages.value = chatRepository.getMessages(counterPartId)
             } catch (e: Exception) {
                 // handle error
                 println(e)

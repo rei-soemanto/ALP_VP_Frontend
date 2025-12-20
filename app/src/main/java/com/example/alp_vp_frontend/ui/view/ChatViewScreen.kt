@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -110,7 +112,8 @@ fun ChatViewScreen(
                 .fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                reverseLayout = true
             ) {
                 items(messages) { msg ->
                     Row(
@@ -133,14 +136,36 @@ fun ChatViewScreen(
                                             ArrowAlignment.LeftTop
                                         } else {
                                             ArrowAlignment.RightTop
-                                        }
+                                        },
                                     )
                                 )
+                                .background(if (msg.senderId == counterPartId) Color(0xff6759FF) else Color(0xffD9D9D9))
                         ) {
                             Text(
                                 text = msg.content,
-                                fontSize = 13.sp
+                                fontSize = 14.sp,
+                                color = if (msg.senderId == counterPartId) Color.Black else Color.White
                             )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text(
+                                    text = msg.timestamp,
+                                    fontSize = 10.sp,
+                                    color = if (msg.senderId == counterPartId) Color.Black else Color.White
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                if (msg.senderId != counterPartId) {
+                                    Icon(
+                                        imageVector = Icons.Default.DoneAll,
+                                        contentDescription = null,
+                                        tint = if (msg.read) Color.Black else Color.White
+                                    )
+                                }
+                            }
                         }
                     }
                 }

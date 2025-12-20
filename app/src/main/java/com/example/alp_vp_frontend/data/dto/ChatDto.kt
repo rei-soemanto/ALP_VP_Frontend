@@ -22,7 +22,8 @@ data class ChatMessage(
     val images: List<String>,
     val receiverId: Int,
     val senderId: Int,
-    val timestamp: String
+    val timestamp: String,
+    val read: Boolean
 )
 
 data class ListMessageRequest (

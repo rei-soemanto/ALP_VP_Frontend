@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ChatApiService {
     @GET("chats/list")
@@ -16,10 +17,16 @@ interface ChatApiService {
         @Header("Authorization") token: String
     ): ApiResponse<List<ChatListItem>>
 
-    @POST("chats/chat/{counterPartId}/messages")
+    @GET("chats/{counterPartId}/messages")
     suspend fun getMessages(
         @Header("Authorization") token: String,
         @Path("counterPartId") counterPartId: Int,
-        @Body request: ListMessageRequest
     ): ApiResponse<List<ChatMessage>>
+
+    @GET("chats/{counterPartId/images")
+    suspend fun getImages(
+        @Header("Authorization") token: String,
+        @Path("counterPartId") counterPartId: Int,
+        @Query("messageId") chunkIndex: Int
+    ): ApiResponse<List<String>>
 }

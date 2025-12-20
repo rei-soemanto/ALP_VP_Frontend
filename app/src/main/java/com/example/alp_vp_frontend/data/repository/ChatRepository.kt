@@ -28,11 +28,9 @@ class ChatRepository(
         }
     }
 
-    suspend fun getMessages(counterPartId: Int, chunkIndex: Int): List<ChatMessage> {
+    suspend fun getMessages(counterPartId: Int): List<ChatMessage> {
         try {
-            val request = ListMessageRequest(chunkIndex)
-            val response = chatApiService.getMessages(getAuthHeader(), counterPartId, request).data
-
+            val response = chatApiService.getMessages(getAuthHeader(), counterPartId).data
             return response
         } catch (e: HttpException) {
             throw Exception(ResponseErrorMapper.fromHttpException(e))

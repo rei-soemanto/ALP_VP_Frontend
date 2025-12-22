@@ -106,36 +106,6 @@ fun AppNavigation() {
                 LaunchedEffect(Unit) { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
             }
 
-//            composable(Screen.ChatList.route) {
-//                ChatListScreen(
-//                    onChatNavigation = { profile ->
-//                        navController.navigate(Screen.ChatView.createRoute(profile))
-//                    }
-//                )
-//            }
-//
-//            composable(
-//                route = Screen.ChatView.route,
-//                arguments = listOf(
-//                    navArgument("fullName") { defaultValue = "" },
-//                    navArgument("id") { defaultValue = "" },
-//                    navArgument("avatarUrl") { defaultValue = "" }
-//                )
-//            ) { backStackEntry ->
-//                val fullName = backStackEntry.arguments?.getString("fullName") ?: ""
-//                val id = Integer.valueOf(backStackEntry.arguments?.getString("id") ?: "")
-//                val avatarUrl = backStackEntry.arguments?.getString("avatarUrl") ?: ""
-//
-//                ChatViewScreen(
-//                    profileId = id,
-//                    profileFullName = fullName,
-//                    profileAvatarUrl = avatarUrl,
-//                    onBackClick = {
-//                        navController.navigate(Screen.ChatList.route)
-//                    }
-//                )
-//            }
-
             composable(Screen.ChatList.route) {
                 ChatListScreen(
                     onChatNavigation = { profile ->
@@ -163,9 +133,7 @@ fun AppNavigation() {
                     counterPartId = id,
                     profileFullName = fullName,
                     profileAvatarUrl = avatarUrl,
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
+                    navController = navController
                 )
             }
 

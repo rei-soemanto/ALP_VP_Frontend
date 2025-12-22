@@ -134,7 +134,7 @@ fun ChatListItemComponent(chat: ChatListItem, onClick: (profile: ChatProfile) ->
             )
         }
 
-        if (!chat.read) {
+        if (!chat.sentByYou && !chat.read) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(),            // outer container

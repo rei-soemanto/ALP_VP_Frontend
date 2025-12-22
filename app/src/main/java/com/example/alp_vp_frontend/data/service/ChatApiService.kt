@@ -4,10 +4,15 @@ import com.example.alp_vp_frontend.data.dto.ApiResponse
 import com.example.alp_vp_frontend.data.dto.ChatListItem
 import com.example.alp_vp_frontend.data.dto.ChatMessage
 import com.example.alp_vp_frontend.data.dto.ListMessageRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -29,4 +34,20 @@ interface ChatApiService {
         @Path("counterPartId") counterPartId: Int,
         @Query("messageId") chunkIndex: Int
     ): ApiResponse<List<String>>
+
+    @Multipart
+    @POST("chats/{counterPartId}/messages")
+    suspend fun sendMessage(
+        @Header("Authorization") token: String,
+        @Path("counterPartId") counterPartId: Int,
+        @Part("content") content: RequestBody,
+        @Part images: List<MultipartBody.Part>
+    )
+
+    @PUT("chats/{counterPartId}/messages/{messageId}")
+    suspend fun readMessage(
+        @Header("Authorization") token: String,
+        @Path("counterPartId") counterPartId: Int,
+        @Path("messageId") messageId: Int
+    )
 }

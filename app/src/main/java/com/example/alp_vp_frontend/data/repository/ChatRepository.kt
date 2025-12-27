@@ -129,9 +129,18 @@ class ChatRepository(
         }
     }
 
-    suspend fun readMessage(counterPartId: Int, messageId: Int) {
+    suspend fun readMessage(messageId: Int) {
         try {
-            val response = chatApiService.readMessage(getAuthHeader(), counterPartId, messageId)
+            val response = chatApiService.readMessage(getAuthHeader(), messageId)
+            return response
+        } catch (e: HttpException) {
+            throw Exception(ResponseErrorMapper.fromHttpException(e))
+        }
+    }
+
+    suspend fun getImages(messageId: Int): List<String> {
+        try {
+            val response = chatApiService.getImages(getAuthHeader(), messageId).data
             return response
         } catch (e: HttpException) {
             throw Exception(ResponseErrorMapper.fromHttpException(e))
@@ -156,12 +165,12 @@ class ChatRepository(
             if (message != null) {
                 _incomingMessages.tryEmit(message)
 
-                println("Sender: " + message.senderId)
-                println("Counterpart: " + counterPartId)
+//                println("Sender: " + message.senderId)
+//                println("Counterpart: " + counterPartId)
 
                 if (message.senderId == counterPartId) {
                     socketScope.launch {
-                        readMessage(counterPartId, message.id)
+                        readMessage(message.id)
                     }
                 }
             }

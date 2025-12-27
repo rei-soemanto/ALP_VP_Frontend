@@ -10,6 +10,7 @@ import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.CommentViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.EditProfileViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.MessageImageViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 
@@ -62,6 +63,13 @@ object AppViewModelProvider {
         initializer {
             val app = inventoryApplication()
             ChatViewModel(
+                chatRepository = app.container.chatRepository
+            )
+        }
+
+        initializer {
+            val app = inventoryApplication()
+            MessageImageViewModel(
                 chatRepository = app.container.chatRepository
             )
         }

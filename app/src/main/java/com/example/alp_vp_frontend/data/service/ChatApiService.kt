@@ -28,13 +28,6 @@ interface ChatApiService {
         @Path("counterPartId") counterPartId: Int,
     ): ApiResponse<List<ChatMessage>>
 
-    @GET("chats/{counterPartId/images")
-    suspend fun getImages(
-        @Header("Authorization") token: String,
-        @Path("counterPartId") counterPartId: Int,
-        @Query("messageId") chunkIndex: Int
-    ): ApiResponse<List<String>>
-
     @Multipart
     @POST("chats/{counterPartId}/messages")
     suspend fun sendMessage(
@@ -44,10 +37,15 @@ interface ChatApiService {
         @Part images: List<MultipartBody.Part>
     )
 
-    @PUT("chats/{counterPartId}/messages/{messageId}")
+    @PUT("chats/readMessage/{messageId}")
     suspend fun readMessage(
         @Header("Authorization") token: String,
-        @Path("counterPartId") counterPartId: Int,
         @Path("messageId") messageId: Int
     )
+
+    @GET("chats/getImages/{messageId}")
+    suspend fun getImages(
+        @Header("Authorization") token: String,
+        @Path("messageId") messageId: Int
+    ): ApiResponse<List<String>>
 }

@@ -8,9 +8,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -42,7 +45,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +53,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -69,13 +73,22 @@ import com.smarttoolfactory.bubble.BubbleCornerRadius
 import com.smarttoolfactory.bubble.BubbleState
 import com.smarttoolfactory.bubble.bubble
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun formatTimestamp(raw: String): String {
-    val input = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    val output = DateTimeFormatter.ofPattern("HH:mm")
-    return LocalDateTime.parse(raw, input).format(output)
+    return try {
+        val zonedDateTime = ZonedDateTime.parse(raw)
+        val deviceZone = ZoneId.systemDefault()
+        val localDateTime = zonedDateTime.withZoneSameInstant(deviceZone)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        localDateTime.format(formatter)
+    } catch (e: Exception) {
+        raw
+    }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatViewScreen(
@@ -83,6 +96,7 @@ fun ChatViewScreen(
     profileFullName: String,
     profileAvatarUrl: String?,
     onBack: () -> Unit,
+    onViewImage: (messageId: Int) -> Unit,
     viewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory),
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
@@ -99,15 +113,10 @@ fun ChatViewScreen(
             selectedImageUris = uris
         }
     }
-//
-//    DisposableEffect(lifecycleOwner) {
-//        onDispose {
-//            viewModel.disconnectSocket()
-//        }
-//    }
 
     LaunchedEffect(Unit) {
         viewModel.getMessages(counterPartId)
+        viewModel.connectSocket(counterPartId)
         viewModel.runListeners(counterPartId)
     }
 
@@ -120,7 +129,7 @@ fun ChatViewScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxHeight()
+                                .fillMaxHeight(0.8f)
                                 .aspectRatio(1f)
                                 .clip(CircleShape)
                                 .background(Color.LightGray)
@@ -128,7 +137,7 @@ fun ChatViewScreen(
                             AsyncImage(
                                 model = ImageBaseURL + profileAvatarUrl,
                                 contentDescription = null,
-                                modifier = Modifier.fillMaxSize(0.8f),
+                                modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
                         }
@@ -164,93 +173,96 @@ fun ChatViewScreen(
                 reverseLayout = true
             ) {
                 itemsIndexed(messages) { index, msg ->
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = if (msg.senderId == counterPartId) {
-                            Arrangement.Start
+                    Column (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalAlignment = if (msg.senderId == counterPartId) {
+                            Alignment.Start
                         } else {
-                            Arrangement.End
+                            Alignment.End
                         }
                     ) {
+                        val isIncoming = msg.senderId == counterPartId
+
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .padding(12.dp),
-                            horizontalAlignment = if (msg.senderId == counterPartId) {
-                                Alignment.Start
-                            } else {
-                                Alignment.End
-                            }
-                        ) {
-                            val isIncoming = msg.senderId == counterPartId
-
-                            Column(
-                                modifier = Modifier
-                                    .bubble(
-                                        bubbleState = BubbleState(
-                                            alignment = if (isIncoming)
-                                                ArrowAlignment.LeftTop
-                                            else
-                                                ArrowAlignment.RightTop,
-                                            arrowShape = ArrowShape.HalfTriangle,
-                                            drawArrow = true
-                                        ),
-                                        color = if (isIncoming)
-                                            Color(0xffD9D9D9)
+                                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.8f)
+                                .width(IntrinsicSize.Min)
+                                .bubble(
+                                    bubbleState = BubbleState(
+                                        alignment = if (isIncoming)
+                                            ArrowAlignment.LeftTop
                                         else
-                                            Color(0xff6759FF)
-                                    )
-                                    .padding(8.dp),
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                if (msg.images.isNotEmpty()) {
-                                    Box(
+                                            ArrowAlignment.RightTop,
+                                        arrowShape = ArrowShape.HalfTriangle,
+                                        drawArrow = true
+                                    ),
+                                    color = if (isIncoming)
+                                        Color(0xffD9D9D9)
+                                    else
+                                        Color(0xff6759FF)
+                                )
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            if (msg.images.isNotEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                                        .aspectRatio(1f)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.BottomEnd
+                                ) {
+                                    AsyncImage(
+                                        model = ImageBaseURL + msg.images[0],
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(1f)
-                                            .clip(RoundedCornerShape(8.dp)),
-                                        contentAlignment = Alignment.BottomEnd
-                                    ) {
-                                        AsyncImage(
-                                            model = ImageBaseURL + msg.images[0],
-                                            contentDescription = null,
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = ContentScale.Crop
-                                        )
+                                            .fillMaxSize()
+                                            .clickable {
+                                                onViewImage(msg.id)
+                                            }
+                                    )
 
-                                        Text(
-                                            text = "${msg.images.size} images",
-                                            color = Color.White,
-                                            modifier = Modifier
-                                                .padding(8.dp)
-                                                .background(
-                                                    color = Color.Black.copy(alpha = 0.5f),
-                                                    shape = RoundedCornerShape(6.dp)
-                                                )
-                                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                                        )
-                                    }
-                                }
-
-                                if (msg.content.isNotBlank()) {
                                     Text(
-                                        text = msg.content,
-                                        fontSize = 14.sp,
-                                        color = if (isIncoming) Color.Black else Color.White
+                                        text = "${msg.images.size} images",
+                                        color = Color.White,
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .background(
+                                                color = Color.Black.copy(alpha = 0.5f),
+                                                shape = RoundedCornerShape(6.dp)
+                                            )
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
+                            }
 
+                            if (msg.content.isNotBlank()) {
+                                Text(
+                                    text = msg.content,
+                                    fontSize = 14.sp,
+                                    color = if (isIncoming) Color.Black else Color.White
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .widthIn(min = 105.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        text = msg.timestamp,
+                                        text = formatTimestamp(msg.timestamp),
                                         fontSize = 10.sp,
-                                        color = if (isIncoming) Color.Black else Color.White
+                                        color = if (isIncoming) Color.Black else Color.White,
+                                        maxLines = 1,
+                                        softWrap = false
                                     )
 
                                     if (!isIncoming) {

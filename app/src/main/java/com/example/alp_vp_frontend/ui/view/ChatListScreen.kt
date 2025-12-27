@@ -60,6 +60,7 @@ fun ChatListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getChatList()
+        viewModel.connectSocket()
     }
 
     Scaffold(

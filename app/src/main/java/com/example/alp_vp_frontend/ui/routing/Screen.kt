@@ -1,6 +1,7 @@
 package com.example.alp_vp_frontend.ui.routing
 
 import android.net.Uri
+import android.os.Message
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,12 +30,14 @@ import com.example.alp_vp_frontend.ui.view.EditProfileScreen
 import com.example.alp_vp_frontend.ui.view.HomeScreen
 import com.example.alp_vp_frontend.ui.view.InterestScreen
 import com.example.alp_vp_frontend.ui.view.LoginScreen
+import com.example.alp_vp_frontend.ui.view.MessageImageScreen
 import com.example.alp_vp_frontend.ui.view.MyPostsScreen
 import com.example.alp_vp_frontend.ui.view.ProfileScreen
 import com.example.alp_vp_frontend.ui.view.RegisterScreen
 import com.example.alp_vp_frontend.ui.view.SearchScreen
 import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.MessageImageViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -59,6 +62,11 @@ sealed class Screen(val route: String) {
                     Uri.encode(avatarUrl)
         }
     }
+
+    object MessageImageView : Screen("message_image_view/{messageId}") {
+        fun createRoute(messageId: Int) = "message_image_view/$messageId"
+    }
+
     object Profile : Screen("profile")
     object MyPosts : Screen("my_posts/{postId}/{filterType}") {
         fun createRoute(postId: String, filterType: String) = "my_posts/$postId/$filterType"
@@ -83,7 +91,7 @@ fun AppNavigation() {
     Scaffold(
         bottomBar = { if (currentRoute in mainTabs) BottomNavigationBar(navController = navController) }
     ) { innerPadding ->
-        NavHost(navController, startDestination, Modifier.padding(innerPadding)) {
+        NavHost(navController, startDestination) { // Modifier.padding(innerPadding)
             composable(Screen.Login.route) {
                 LoginScreen(
                     onNavigateToRegister = { navController.navigate(Screen.Register.route) },
@@ -149,6 +157,31 @@ fun AppNavigation() {
                     onBack = {
                         navController.popBackStack()
                     },
+                    onViewImage = { messageId ->
+                        navController.navigate(Screen.MessageImageView.createRoute(messageId))
+                    },
+                    viewModel
+                )
+            }
+
+            composable(
+                route = Screen.MessageImageView.route,
+                arguments = listOf(
+                    navArgument("messageId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val messageId = backStackEntry.arguments?.getInt("messageId")!!
+                val viewModel: MessageImageViewModel =
+                    viewModel(
+                        backStackEntry,
+                        factory = AppViewModelProvider.Factory
+                    )
+
+                MessageImageScreen(
+                    messageId = messageId,
+                    onBack = {
+                        navController.popBackStack()
+                    },
                     viewModel
                 )
             }
@@ -200,7 +233,6 @@ fun AppNavigation() {
 
                 MyPostsScreen(
                     navController = navController,
-//                    viewModel = postViewModel,
                     initialPostId = initialPostId,
                     filterType = filterType
                 )

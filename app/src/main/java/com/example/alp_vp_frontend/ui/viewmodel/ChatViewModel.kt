@@ -109,7 +109,6 @@ class ChatViewModel(
         listenToIncomingMessages()
         listenToMessageRead()
         listenToReconnects(counterPartId)
-        connectSocket(counterPartId)
     }
 
 //    override fun onCleared() {

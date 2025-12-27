@@ -72,7 +72,7 @@ class ChatListViewModel(
                         }
                     }
 
-                    println(message)
+//                    println(message)
 
                     _chatList.value = _chatDeque.toList()
                 }
@@ -92,7 +92,6 @@ class ChatListViewModel(
     }
 
     init {
-        connectSocket()
         listenToReconnects()
         listenToIncomingMessages()
     }

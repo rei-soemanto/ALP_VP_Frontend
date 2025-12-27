@@ -38,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.alp_vp_frontend.data.dto.ChatListItem
@@ -50,7 +52,8 @@ import com.example.alp_vp_frontend.ui.viewmodel.ChatListUIState
 @Composable
 fun ChatListScreen(
     onChatNavigation: (profile: ChatProfile) -> Unit,
-    viewModel: ChatListViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: ChatListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val chatList by viewModel.chatList.collectAsState()

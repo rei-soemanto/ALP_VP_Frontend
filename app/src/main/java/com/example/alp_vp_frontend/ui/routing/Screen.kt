@@ -33,6 +33,8 @@ import com.example.alp_vp_frontend.ui.view.MyPostsScreen
 import com.example.alp_vp_frontend.ui.view.ProfileScreen
 import com.example.alp_vp_frontend.ui.view.RegisterScreen
 import com.example.alp_vp_frontend.ui.view.SearchScreen
+import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -77,7 +79,6 @@ fun AppNavigation() {
     val mainTabs = listOf(Screen.Home.route, Screen.Search.route, Screen.CreatePost.route, Screen.ChatList.route, Screen.Profile.route)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val postViewModel: PostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
     Scaffold(
         bottomBar = { if (currentRoute in mainTabs) BottomNavigationBar(navController = navController) }
@@ -95,7 +96,7 @@ fun AppNavigation() {
             composable(Screen.Interest.route, arguments = listOf(navArgument("token") { type = NavType.StringType })) { backStackEntry ->
                 InterestScreen(token = backStackEntry.arguments?.getString("token") ?: "", onNavigateHome = { navController.navigate(Screen.Login.route) })
             }
-            composable(Screen.Home.route) { HomeScreen(viewModel = postViewModel, navController = navController) }
+            composable(Screen.Home.route) { HomeScreen(navController = navController) }
             composable(Screen.Search.route) { SearchScreen() }
             composable(Screen.CreatePost.route) {
                 val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -106,13 +107,20 @@ fun AppNavigation() {
                 LaunchedEffect(Unit) { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
             }
 
-            composable(Screen.ChatList.route) {
+            composable(Screen.ChatList.route) { backStackEntry ->
+                val viewModel: ChatListViewModel =
+                    viewModel(
+                        backStackEntry,
+                        factory = AppViewModelProvider.Factory
+                    )
+
                 ChatListScreen(
                     onChatNavigation = { profile ->
                         navController.navigate(
                             Screen.ChatView.createRoute(profile)
                         )
-                    }
+                    },
+                    viewModel
                 )
             }
 
@@ -124,6 +132,11 @@ fun AppNavigation() {
                     navArgument("avatarUrl") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
+                val viewModel: ChatViewModel =
+                    viewModel(
+                        backStackEntry,
+                        factory = AppViewModelProvider.Factory
+                    )
 
                 val fullName = backStackEntry.arguments?.getString("fullName")!!
                 val id = backStackEntry.arguments?.getInt("id")!!
@@ -133,7 +146,10 @@ fun AppNavigation() {
                     counterPartId = id,
                     profileFullName = fullName,
                     profileAvatarUrl = avatarUrl,
-                    navController = navController
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel
                 )
             }
 
@@ -184,7 +200,7 @@ fun AppNavigation() {
 
                 MyPostsScreen(
                     navController = navController,
-                    viewModel = postViewModel,
+//                    viewModel = postViewModel,
                     initialPostId = initialPostId,
                     filterType = filterType
                 )
@@ -211,9 +227,9 @@ fun AppNavigation() {
                     initialCaption = initialCaption,
                     initialIsPublic = initialIsPublic,
                     onBackClick = { navController.popBackStack() },
-                    onShareClick = { caption, isPublic ->
-                        if (postId == null) postViewModel.createPost(context, caption, imageUri, isPublic)
-                        else postViewModel.updatePost(postId, caption, isPublic)
+                    onShareClick = { // caption, isPublic ->
+//                        if (postId == null) postViewModel.createPost(context, caption, imageUri, isPublic)
+//                        else postViewModel.updatePost(postId, caption, isPublic)
                         navController.navigate(Screen.Home.route) { popUpTo(Screen.Home.route) { inclusive = true } }
                     }
                 )

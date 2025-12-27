@@ -15,7 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class AppContainer(appContext: Context) {
-    private val BASE_URL = "http://192.168.1.72:3000"
+    private val BASE_URL = "http://192.168.1.9:3000"
     private val API_BASE_URL = "$BASE_URL/api/"
 
     fun createSocket(token: String): Socket {

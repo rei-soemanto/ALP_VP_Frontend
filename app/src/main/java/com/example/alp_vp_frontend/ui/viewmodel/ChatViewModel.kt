@@ -30,6 +30,8 @@ class ChatViewModel(
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
+    private var _listenersRunning = false
+
     fun getMessages(counterPartId: Int) {
         viewModelScope.launch {
             try {
@@ -64,6 +66,8 @@ class ChatViewModel(
     }
 
     fun disconnectSocket() {
+        println("ChatviewModel disconnect socket")
+
         viewModelScope.launch {
             chatRepository.disconnect()
         }
@@ -97,4 +101,18 @@ class ChatViewModel(
             }
         }
     }
+
+    fun runListeners(counterPartId: Int) {
+        if (_listenersRunning) return
+        _listenersRunning = true
+
+        listenToIncomingMessages()
+        listenToMessageRead()
+        listenToReconnects(counterPartId)
+        connectSocket(counterPartId)
+    }
+
+//    override fun onCleared() {
+//        disconnectSocket()
+//    }
 }

@@ -15,10 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.alp_vp_frontend.data.container.AppContainer
+import com.example.alp_vp_frontend.ui.AppViewModelProvider
+import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 val Blurple = Color(0xFF6759FF)
 val LightGrey = Color(0xFFE0E0E0)
@@ -33,8 +38,11 @@ fun CreatePostScreen(
     initialIsPublic: Boolean = true,
 
     onBackClick: () -> Unit,
-    onShareClick: (String, Boolean) -> Unit
+    onShareClick: () -> Unit,
+    viewModel: PostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
+
     var caption by remember(initialCaption) { mutableStateOf(initialCaption) }
     var isPublic by remember(initialIsPublic) { mutableStateOf(initialIsPublic) }
 
@@ -59,7 +67,13 @@ fun CreatePostScreen(
         },
         bottomBar = {
             Button(
-                onClick = { onShareClick(caption, isPublic) },
+                onClick = {
+//                    onShareClick(caption, isPublic)
+                    if (postId == null) viewModel.createPost(context, caption, imageUri, isPublic)
+                    else viewModel.updatePost(postId, caption, isPublic)
+
+                    onShareClick()
+                },
                 modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Blurple),
                 shape = RoundedCornerShape(16.dp)

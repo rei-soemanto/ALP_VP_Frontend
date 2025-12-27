@@ -31,13 +31,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.alp_vp_frontend.R
+import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: PostViewModel = viewModel(),
-    navController: NavController
+    navController: NavController,
+    viewModel: PostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val posts by viewModel.posts.collectAsState()
     var showCommentSheet by remember { mutableStateOf(false) }

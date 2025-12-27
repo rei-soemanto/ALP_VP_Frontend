@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -81,8 +82,9 @@ fun ChatViewScreen(
     counterPartId: Int,
     profileFullName: String,
     profileAvatarUrl: String?,
-    navController: NavController,
-    viewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    onBack: () -> Unit,
+    viewModel: ChatViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val context = LocalContext.current
 
@@ -97,18 +99,16 @@ fun ChatViewScreen(
             selectedImageUris = uris
         }
     }
-
-    BackHandler {
-        viewModel.disconnectSocket()
-        navController.popBackStack()
-    }
+//
+//    DisposableEffect(lifecycleOwner) {
+//        onDispose {
+//            viewModel.disconnectSocket()
+//        }
+//    }
 
     LaunchedEffect(Unit) {
         viewModel.getMessages(counterPartId)
-        viewModel.listenToIncomingMessages()
-        viewModel.listenToMessageRead()
-        viewModel.listenToReconnects(counterPartId)
-        viewModel.connectSocket(counterPartId)
+        viewModel.runListeners(counterPartId)
     }
 
     Scaffold(
@@ -145,8 +145,7 @@ fun ChatViewScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            viewModel.disconnectSocket()
-                            navController.popBackStack()
+                            onBack()
                         }
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

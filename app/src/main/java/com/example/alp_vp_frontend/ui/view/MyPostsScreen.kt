@@ -14,16 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.alp_vp_frontend.ui.AppViewModelProvider
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPostsScreen(
     navController: NavController,
-    viewModel: PostViewModel,
     initialPostId: String?,
-    filterType: String?
+    filterType: String?,
+    viewModel: PostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val userPosts by viewModel.userPosts.collectAsState()
     val displayedPosts = remember(userPosts, filterType) {

@@ -18,6 +18,7 @@ import io.socket.client.Socket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -38,7 +39,7 @@ class ChatRepository(
     private val createSocket: (token: String) -> Socket
 ) {
     private var socket: Socket? = null
-
+    private var activeCounterPartId: Int? = null
     private val _incomingMessages = MutableSharedFlow<ChatMessage>(
         replay = 0,
         extraBufferCapacity = 64,
@@ -139,19 +140,24 @@ class ChatRepository(
 
     // Socket.io
     suspend fun connect(counterPartId: Int) {
-        if (socket == null) {
-            socket = createSocket(getAuthHeader())
+        if (activeCounterPartId == counterPartId && socket?.connected() == true) {
+            return
         }
 
-        val sock = socket!!
+        disconnect()
 
-        if (sock.connected()) return
+        val sock = createSocket(getAuthHeader())
+        socket = sock
+        activeCounterPartId = counterPartId
 
         sock.on("message") { args ->
             val message = ChatMessageMapper.fromSocketArgs(args)
 
             if (message != null) {
                 _incomingMessages.tryEmit(message)
+
+                println("Sender: " + message.senderId)
+                println("Counterpart: " + counterPartId)
 
                 if (message.senderId == counterPartId) {
                     socketScope.launch {
@@ -166,6 +172,7 @@ class ChatRepository(
         }
 
         sock.on(Socket.EVENT_CONNECT) {
+            sock.emit("counterPartId", counterPartId)
             _onReconnect.tryEmit(Unit)
         }
 
@@ -174,7 +181,11 @@ class ChatRepository(
 
     suspend fun disconnect() {
         println("Disconnect from socket")
+        socket?.off()
         socket?.disconnect()
+        socket?.close()
         socket = null
+
+        socketScope.coroutineContext.cancelChildren()
     }
 }

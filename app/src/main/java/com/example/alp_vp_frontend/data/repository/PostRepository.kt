@@ -44,10 +44,10 @@ class PostRepository(
     suspend fun createPost(
         caption: RequestBody,
         isPublic: RequestBody,
-        image: MultipartBody.Part
+        images: List<MultipartBody.Part>
     ): PostResponse {
         try {
-            val response = postApiService.createPost(getAuthHeader(), caption, isPublic, image).data
+            val response = postApiService.createPost(getAuthHeader(), caption, isPublic, images).data
 
             return response
         } catch (e: HttpException) {

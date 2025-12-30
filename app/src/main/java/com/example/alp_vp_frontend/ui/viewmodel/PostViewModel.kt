@@ -35,7 +35,7 @@ data class Post(
     val likes: String,
     val comments: String,
     val caption: String,
-    val imageUrl: String,
+    val imageUrls: List<String>,
     val avatarUrl: String?,
     val isPublic: Boolean,
     val isLiked: Boolean
@@ -83,16 +83,18 @@ class PostViewModel(
         }
     }
 
-    fun createPost(context: Context, caption: String, imageUri: Uri?, isPublic: Boolean) {
+    fun createPost(context: Context, caption: String, imageUris: List<Uri>, isPublic: Boolean) {
         viewModelScope.launch {
             _postUiState.value = PostUiState.Loading
             try {
                 val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
                 val publicPart = isPublic.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-                val imagePart = prepareImagePart(context, imageUri)
+                val imageParts = imageUris.mapIndexedNotNull { index, uri ->
+                    prepareImagePart(context, uri, index)
+                }
 
-                if (imagePart != null) {
-                    repository.createPost(captionPart, publicPart, imagePart)
+                if (imageParts != null) {
+                    repository.createPost(captionPart, publicPart, imageParts)
                     _postUiState.value = PostUiState.Success("Post created successfully")
 
                     fetchPosts()
@@ -168,10 +170,10 @@ class PostViewModel(
         _userPosts.value = updateList(_userPosts.value)
     }
 
-    private fun prepareImagePart(context: Context, uri: Uri?): MultipartBody.Part? {
+    private fun prepareImagePart(context: Context, uri: Uri?, index: Int): MultipartBody.Part? {
         if (uri == null) return null
         return try {
-            val file = File(context.cacheDir, "temp_upload_image.jpg")
+            val file = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}_${index}.jpg")
             val inputStream = context.contentResolver.openInputStream(uri)
             val outputStream = FileOutputStream(file)
             inputStream?.copyTo(outputStream)
@@ -199,9 +201,10 @@ class PostViewModel(
     }
 
     private fun PostResponse.toUiModel(): Post {
-        val firstImage = this.images?.firstOrNull()?.imageUrl ?: ""
         val BASE_URL = ImageBaseURL
-        val fullUrl = if (firstImage.startsWith("http")) firstImage else "$BASE_URL$firstImage"
+        val urls = this.images?.map { img ->
+            if (img.imageUrl.startsWith("http")) img.imageUrl else "$BASE_URL${img.imageUrl}"
+        } ?: emptyList()
 
         return Post(
             id = this.id.toString(),
@@ -210,7 +213,7 @@ class PostViewModel(
             likes = this.totalLikes.toString(),
             comments = this.totalComments.toString(),
             caption = this.caption ?: "",
-            imageUrl = fullUrl,
+            imageUrls = urls,
             avatarUrl = this.author.avatarUrl,
             isPublic = this.isPublic,
             isLiked = this.isLiked

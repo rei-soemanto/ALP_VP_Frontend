@@ -4,6 +4,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -38,6 +40,8 @@ fun PostCard(
     onLikeClick: (String, Boolean) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+
+    val pagerState = rememberPagerState(pageCount = { post.imageUrls.size })
 
     Card(
         modifier = Modifier
@@ -82,7 +86,11 @@ fun PostCard(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Edit Post") },
-                            onClick = { showMenu = false; onEditClick(post.id, post.caption, post.isPublic, post.imageUrl) }
+                            onClick = {
+                                showMenu = false;
+                                val previewImg = post.imageUrls.firstOrNull() ?: ""
+                                onEditClick(post.id, post.caption, post.isPublic, previewImg)
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text("Delete Post", color = Color.Red) },
@@ -95,13 +103,38 @@ fun PostCard(
             Box(
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f).background(Color(0xFFE0E0E0))
             ) {
-                if (post.imageUrl.isNotEmpty()) {
-                    AsyncImage(
-                        model = post.imageUrl,
-                        contentDescription = "Post Image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                if (post.imageUrls.isNotEmpty()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        AsyncImage(
+                            model = post.imageUrls[page],
+                            contentDescription = "Post Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    if (post.imageUrls.size > 1) {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 10.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            repeat(post.imageUrls.size) { iteration ->
+                                val color = if (pagerState.currentPage == iteration) Color.White else Color.White.copy(alpha = 0.5f)
+                                Box(
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .clip(CircleShape)
+                                        .background(color)
+                                        .size(6.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

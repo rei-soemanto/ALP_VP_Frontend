@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,7 +34,7 @@ val InputGrey = Color(0xFFEEEEEE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
-    imageUri: Uri?,
+    imageUris: List<Uri>,
     postId: String? = null,
     initialCaption: String = "",
     initialIsPublic: Boolean = true,
@@ -68,8 +70,7 @@ fun CreatePostScreen(
         bottomBar = {
             Button(
                 onClick = {
-//                    onShareClick(caption, isPublic)
-                    if (postId == null) viewModel.createPost(context, caption, imageUri, isPublic)
+                    if (postId == null) viewModel.createPost(context, caption, imageUris, isPublic)
                     else viewModel.updatePost(postId, caption, isPublic)
 
                     onShareClick()
@@ -94,42 +95,71 @@ fun CreatePostScreen(
                 .padding(top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .width(280.dp)
-                    .aspectRatio(0.8f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(LightGrey)
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (imageUri != null) {
-                    AsyncImage(
-                        model = imageUri,
-                        contentDescription = "Selected Image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+
+                if (imageUris.isNotEmpty()) {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp)
+                    ) {
+                        items(imageUris) { uri ->
+                            Box(
+                                modifier = Modifier
+                                    .width(280.dp)
+                                    .aspectRatio(0.8f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(LightGrey)
+                            ) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = "Selected Image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .width(280.dp)
+                            .aspectRatio(0.8f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(LightGrey),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No Image Selected", color = Color.Gray)
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                TextField(
+                    value = caption,
+                    onValueChange = { caption = it },
+                    placeholder = { Text("Add caption ...", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(16.dp)).background(InputGrey),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = InputGrey, unfocusedContainerColor = InputGrey,
+                        focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                PrivacyOptionRow("Send Post to Public", isPublic) { isPublic = true }
+                Spacer(modifier = Modifier.height(16.dp))
+                PrivacyOptionRow("Send Post to Private", !isPublic) { isPublic = false }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            TextField(
-                value = caption,
-                onValueChange = { caption = it },
-                placeholder = { Text("Add caption ...", color = Color.Gray) },
-                modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(16.dp)).background(InputGrey),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = InputGrey, unfocusedContainerColor = InputGrey,
-                    focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            PrivacyOptionRow("Send Post to Public", isPublic) { isPublic = true }
-            Spacer(modifier = Modifier.height(16.dp))
-            PrivacyOptionRow("Send Post to Private", !isPublic) { isPublic = false }
         }
     }
 }

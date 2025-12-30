@@ -91,7 +91,7 @@ fun AppNavigation() {
     Scaffold(
         bottomBar = { if (currentRoute in mainTabs) BottomNavigationBar(navController = navController) }
     ) { innerPadding ->
-        NavHost(navController, startDestination) { // Modifier.padding(innerPadding)
+        NavHost(navController, startDestination) {
             composable(Screen.Login.route) {
                 LoginScreen(
                     onNavigateToRegister = { navController.navigate(Screen.Register.route) },
@@ -107,12 +107,21 @@ fun AppNavigation() {
             composable(Screen.Home.route) { HomeScreen(navController = navController) }
             composable(Screen.Search.route) { SearchScreen() }
             composable(Screen.CreatePost.route) {
-                val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-                    if (uri != null) {
-                        navController.navigate("create_post_details?uri=${Uri.encode(uri.toString())}") { popUpTo(Screen.CreatePost.route) { inclusive = true } }
-                    } else navController.popBackStack()
+                val launcher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.PickMultipleVisualMedia()
+                ) { uris ->
+                    if (uris.isNotEmpty()) {
+                        val encodedUris = uris.joinToString(",") { Uri.encode(it.toString()) }
+                        navController.navigate("create_post_details?uris=$encodedUris") {
+                            popUpTo(Screen.CreatePost.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
                 }
-                LaunchedEffect(Unit) { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                LaunchedEffect(Unit) {
+                    launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }
             }
 
             composable(Screen.ChatList.route) { backStackEntry ->
@@ -239,29 +248,34 @@ fun AppNavigation() {
             }
 
             composable(
-                route = "create_post_details?uri={uri}&postId={postId}&caption={caption}&isPublic={isPublic}",
+                route = "create_post_details?uris={uris}&postId={postId}&caption={caption}&isPublic={isPublic}",
                 arguments = listOf(
-                    navArgument("uri") { type = NavType.StringType },
+                    navArgument("uris") { type = NavType.StringType; defaultValue = "" }, // Changed param name to 'uris'
                     navArgument("postId") { nullable = true; defaultValue = null },
                     navArgument("caption") { nullable = true; defaultValue = "" },
                     navArgument("isPublic") { type = NavType.BoolType; defaultValue = true }
                 )
             ) { backStackEntry ->
-                val uriString = backStackEntry.arguments?.getString("uri")
+                val urisString = backStackEntry.arguments?.getString("uris")
                 val postId = backStackEntry.arguments?.getString("postId")
                 val initialCaption = backStackEntry.arguments?.getString("caption") ?: ""
                 val initialIsPublic = backStackEntry.arguments?.getBoolean("isPublic") ?: true
-                val imageUri = uriString?.let { Uri.parse(it) }
+
+                val imageUris = if (urisString.isNullOrBlank()) {
+                    emptyList()
+                } else {
+                    urisString.split(",").mapNotNull {
+                        if(it.isNotBlank()) Uri.parse(Uri.decode(it)) else null
+                    }
+                }
 
                 CreatePostScreen(
-                    imageUri = imageUri,
+                    imageUris = imageUris,
                     postId = postId,
                     initialCaption = initialCaption,
                     initialIsPublic = initialIsPublic,
                     onBackClick = { navController.popBackStack() },
-                    onShareClick = { // caption, isPublic ->
-//                        if (postId == null) postViewModel.createPost(context, caption, imageUri, isPublic)
-//                        else postViewModel.updatePost(postId, caption, isPublic)
+                    onShareClick = {
                         navController.navigate(Screen.Home.route) { popUpTo(Screen.Home.route) { inclusive = true } }
                     }
                 )

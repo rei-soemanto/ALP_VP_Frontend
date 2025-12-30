@@ -26,7 +26,7 @@ interface PostApiService {
         @Header("Authorization") token: String,
         @Part("caption") caption: RequestBody,
         @Part("isPublic") isPublic: RequestBody,
-        @Part images: MultipartBody.Part
+        @Part images: List<MultipartBody.Part>
     ): ApiResponse<PostResponse>
 
     @PUT("posts/{id}")

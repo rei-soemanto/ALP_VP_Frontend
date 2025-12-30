@@ -37,3 +37,7 @@ data class InterestResponse(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String
 )
+
+data class DeleteUserRequest(
+    @SerializedName("password") val password: String
+)

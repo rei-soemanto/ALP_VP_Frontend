@@ -91,6 +91,19 @@ class AuthViewModel(
         authState = AuthUiState.Idle
     }
 
+    fun deleteAccount(password: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            authState = AuthUiState.Loading
+            try {
+                repository.deleteAccount(password)
+                authState = AuthUiState.Idle
+                onSuccess()
+            } catch (e: Exception) {
+                authState = AuthUiState.Error(e.message ?: "Failed to delete account")
+            }
+        }
+    }
+
     fun logout(onLogout: () -> Unit) {
         viewModelScope.launch {
             repository.logout()

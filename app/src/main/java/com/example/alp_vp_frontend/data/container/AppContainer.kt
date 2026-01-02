@@ -15,7 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class AppContainer(appContext: Context) {
-    private val BASE_URL = "http://10.0.2.2:3000"
+    private val BASE_URL = "http://192.168.1.3:3000"
     private val API_BASE_URL = "$BASE_URL/api/"
 
     fun createSocket(token: String): Socket {
@@ -34,6 +34,7 @@ class AppContainer(appContext: Context) {
 
     private val dataStoreManager = DataStoreManager(appContext)
 
+    private val lol = true
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(API_BASE_URL)

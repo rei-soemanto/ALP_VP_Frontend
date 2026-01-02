@@ -99,7 +99,8 @@ fun HomeScreen(
                         },
                         onLikeClick = { postId, currentLikeState ->
                             viewModel.toggleLike(postId, currentLikeState)
-                        }
+                        },
+                        editable = false
                     )
                 }
             }

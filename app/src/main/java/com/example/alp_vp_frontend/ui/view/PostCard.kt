@@ -37,7 +37,8 @@ fun PostCard(
     onEditClick: (String, String, Boolean, String) -> Unit,
     onDeleteClick: (String) -> Unit,
     onCommentClick: () -> Unit,
-    onLikeClick: (String, Boolean) -> Unit
+    onLikeClick: (String, Boolean) -> Unit,
+    editable: Boolean = true
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -75,27 +76,30 @@ fun PostCard(
                     Text(post.username, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text(post.date, fontSize = 12.sp, color = Color.Gray)
                 }
-                Box {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = Color.DarkGray)
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(Color.White)
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit Post") },
-                            onClick = {
-                                showMenu = false;
-                                val previewImg = post.imageUrls.firstOrNull() ?: ""
-                                onEditClick(post.id, post.caption, post.isPublic, previewImg)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Delete Post", color = Color.Red) },
-                            onClick = { showMenu = false; onDeleteClick(post.id) }
-                        )
+
+                if (editable) {
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = Color.DarkGray)
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier.background(Color.White)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit Post") },
+                                onClick = {
+                                    showMenu = false;
+                                    val previewImg = post.imageUrls.firstOrNull() ?: ""
+                                    onEditClick(post.id, post.caption, post.isPublic, previewImg)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete Post", color = Color.Red) },
+                                onClick = { showMenu = false; onDeleteClick(post.id) }
+                            )
+                        }
                     }
                 }
             }

@@ -34,7 +34,7 @@ class AppContainer(appContext: Context) {
 
     private val dataStoreManager = DataStoreManager(appContext)
 
-    private val lol = true
+    private val lol = false
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(API_BASE_URL)

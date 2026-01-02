@@ -1,7 +1,9 @@
 package com.example.alp_vp_frontend.ui.view
 
+import android.R.attr.top
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,11 +57,17 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = {
+        containerColor = Color.White
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 8.dp),
+                    .padding(bottom = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -69,15 +77,9 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-        },
-        containerColor = Color.White
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
+
             LazyColumn(
+                modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
             ) {
                 items(posts) { post ->

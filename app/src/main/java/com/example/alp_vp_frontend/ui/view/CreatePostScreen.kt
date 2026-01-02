@@ -3,11 +3,16 @@ package com.example.alp_vp_frontend.ui.view
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -47,6 +52,7 @@ fun CreatePostScreen(
 
     var caption by remember(initialCaption) { mutableStateOf(initialCaption) }
     var isPublic by remember(initialIsPublic) { mutableStateOf(initialIsPublic) }
+    var scrollState = rememberScrollState()
 
     val isEditMode = postId != null
 
@@ -67,43 +73,22 @@ fun CreatePostScreen(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        bottomBar = {
-            Button(
-                onClick = {
-                    if (postId == null) viewModel.createPost(context, caption, imageUris, isPublic)
-                    else viewModel.updatePost(postId, caption, isPublic)
-
-                    onShareClick()
-                },
-                modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Blurple),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(
-                    text = if (isEditMode) "Update" else "Share",
-                    fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White
-                )
-            }
-        },
         containerColor = Color.White
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .padding(top = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
                 modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .weight(1f)
                     .padding(horizontal = 24.dp)
-                    .padding(top = 10.dp),
+                    .padding(top = 10.dp)
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 if (imageUris.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -159,6 +144,30 @@ fun CreatePostScreen(
                 PrivacyOptionRow("Send Post to Public", isPublic) { isPublic = true }
                 Spacer(modifier = Modifier.height(16.dp))
                 PrivacyOptionRow("Send Post to Private", !isPublic) { isPublic = false }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        if (postId == null) viewModel.createPost(context, caption, imageUris, isPublic)
+                        else viewModel.updatePost(postId, caption, isPublic)
+
+                        onShareClick()
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Blurple),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = if (isEditMode) "Update" else "Share",
+                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White
+                    )
+                }
             }
         }
     }

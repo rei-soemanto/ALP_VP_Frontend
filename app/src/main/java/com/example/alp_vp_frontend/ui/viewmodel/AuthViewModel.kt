@@ -107,6 +107,7 @@ class AuthViewModel(
     fun logout(onLogout: () -> Unit) {
         viewModelScope.launch {
             repository.logout()
+            onLogout()
         }
     }
 }

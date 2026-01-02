@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,11 @@ fun HomeScreen(
     val pattayaFontFamily = FontFamily(
         Font(R.font.pattaya_regular)
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchPosts()
+        viewModel.fetchUserPosts()
+    }
 
     Scaffold(
         topBar = {

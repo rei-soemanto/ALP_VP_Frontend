@@ -51,6 +51,11 @@ fun MyPostsScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.fetchPosts()
+        viewModel.fetchUserPosts()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

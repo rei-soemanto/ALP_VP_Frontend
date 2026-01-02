@@ -54,10 +54,10 @@ class PostViewModel(
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
     val userPosts: StateFlow<List<Post>> = _userPosts.asStateFlow()
 
-    init {
-        fetchPosts()
-        fetchUserPosts()
-    }
+//    init {
+//        fetchPosts()
+//        fetchUserPosts()
+//    }
 
     fun fetchPosts() {
         viewModelScope.launch {

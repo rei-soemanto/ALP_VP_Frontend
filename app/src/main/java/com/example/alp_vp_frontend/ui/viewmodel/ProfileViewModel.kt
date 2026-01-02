@@ -10,6 +10,7 @@ import com.example.alp_vp_frontend.data.dto.UserResponse
 import com.example.alp_vp_frontend.data.repository.PostRepository
 import com.example.alp_vp_frontend.data.repository.UserRepository
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 sealed interface ProfileUiState {
@@ -36,10 +37,12 @@ class ProfileViewModel(
         viewModelScope.launch {
             profileState = ProfileUiState.Loading
             try {
-                val userDeferred = async { userRepository.getCurrentUser() }
-                val postsDeferred = async { postRepository.getUserPosts() }
+                coroutineScope {
+                    val userDeferred = async { userRepository.getCurrentUser() }
+                    val postsDeferred = async { postRepository.getUserPosts() }
 
-                profileState = ProfileUiState.Success(userDeferred.await(), postsDeferred.await())
+                    profileState = ProfileUiState.Success(userDeferred.await(), postsDeferred.await())
+                }
             } catch (e: Exception) {
                 profileState = ProfileUiState.Error(e.message ?: "Failed to load profile")
             }

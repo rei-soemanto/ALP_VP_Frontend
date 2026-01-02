@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import com.example.alp_vp_frontend.data.dto.ChatProfile
 import com.example.alp_vp_frontend.data.local.DataStoreManager
 import com.example.alp_vp_frontend.ui.AppViewModelProvider
+import com.example.alp_vp_frontend.ui.view.AuthGate
 import com.example.alp_vp_frontend.ui.view.BottomNavigationBar
 import com.example.alp_vp_frontend.ui.view.ChatListScreen
 import com.example.alp_vp_frontend.ui.view.ChatViewScreen
@@ -35,14 +36,17 @@ import com.example.alp_vp_frontend.ui.view.MyPostsScreen
 import com.example.alp_vp_frontend.ui.view.ProfileScreen
 import com.example.alp_vp_frontend.ui.view.RegisterScreen
 import com.example.alp_vp_frontend.ui.view.SearchScreen
+import com.example.alp_vp_frontend.ui.viewmodel.AuthViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ChatListViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.ChatViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.MessageImageViewModel
 import com.example.alp_vp_frontend.ui.viewmodel.PostViewModel
+import com.example.alp_vp_frontend.ui.viewmodel.ProfileViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 sealed class Screen(val route: String) {
+    object AuthGate : Screen("auth_gate")
     object Login : Screen("login")
     object Register : Screen("register")
     object Interest : Screen("interest/{token}") { fun createRoute(token: String) = "interest/$token" }
@@ -83,7 +87,7 @@ fun AppNavigation() {
     val context = LocalContext.current
     val dataStore = DataStoreManager(context)
     val tokenState = runBlocking { dataStore.tokenFlow.first() }
-    val startDestination = if (!tokenState.isNullOrEmpty()) Screen.Home.route else Screen.Login.route
+    val startDestination = if (tokenState.isNullOrEmpty()) Screen.Login.route else Screen.AuthGate.route
     val mainTabs = listOf(Screen.Home.route, Screen.Search.route, Screen.CreatePost.route, Screen.ChatList.route, Screen.Profile.route)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -92,6 +96,17 @@ fun AppNavigation() {
         bottomBar = { if (currentRoute in mainTabs) BottomNavigationBar(navController = navController) }
     ) { innerPadding ->
         NavHost(navController, startDestination) {
+            composable(Screen.AuthGate.route) {
+                val profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
+                val authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
+
+                AuthGate(
+                    navController,
+                    profileViewModel,
+                    authViewModel
+                )
+            }
+
             composable(Screen.Login.route) {
                 LoginScreen(
                     onNavigateToRegister = { navController.navigate(Screen.Register.route) },
